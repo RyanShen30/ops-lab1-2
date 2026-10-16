@@ -7,21 +7,116 @@
 | 项 | 内容 |
 |---|---|
 | 小组 | 第 <组号> 组 |
-| 仓库地址 | <https://github.com/…> |
-| 代码载体 | 统一示例 / 自己的项目（<项目名与语言>） |
-| runner 与语言版本 | `ubuntu-24.04`，<Go 或其他语言的版本> |
-| 合并方式 | <squash / merge commit / rebase> |
+| 仓库地址 | [RyanShen30/ops-lab1-2](https://github.com/RyanShen30/ops-lab1-2) |
+| 代码载体 | 统一示例 `enroll-conflict`（Go） |
+| runner 与语言版本 | `ubuntu-24.04`，Go `1.26.9` |
+| 合并方式 | squash |
 
 ## 2. 任务 0：本地基线
 
+在公网 IP 为 `124.71.190.176` 的服务器上，直接使用当前 `sra` 账户，在 `/home/sra/lab1-local` 操作。沿用现有 Go `1.26.9`（`linux/amd64`）、GNU make `4.3` 和 GNU tar `1.35`；本目录由课程模板仓库克隆而来，HEAD 为 `7b63b41c13f061439997b0e6e4eaa2af922a7aa1`。
+
+两次均执行 `make package VERSION=1.0.0 BUILD_NO=1`，未指定的 `RUN_ID` 沿用默认值 `local`，`COMMIT` 由 Makefile 从 Git HEAD 取得。第一次构建前工作区干净；第二次仅修改 `conflict.go` 中的一行注释，不提交。两次取证完成并恢复源文件之后，才填写本节，避免本文件的修改影响第一次构建的 VCS 状态。
+
 | 问题 | 观察结果 |
 |---|---|
-| 第一次 `make package` 得到的 BUILD_INFO（粘贴） | <填写> |
-| 修改一行、不提交，再次打包：BUILD_INFO 是否变化？二进制文件的 sha256 是否变化？（贴出两次的 sha256） | <填写> |
-| 两次 `go version -m` 输出中的 vcs 行有何不同？ | <填写> |
-| 仅凭 BUILD_INFO，能否回答该包是什么、在哪台机器上、何时、用哪份代码构建？哪一项信息会出错？ | <填写> |
+| 第一次 `make package` 得到的 BUILD_INFO（粘贴） | 见下方“第一次打包”的完整六行实际输出。 |
+| 修改一行、不提交，再次打包：BUILD_INFO 是否变化？二进制文件的 sha256 是否变化？（贴出两次的 sha256） | `BUILD_INFO` 完全相同，`diff` 退出码为 0；二进制 SHA256 不同，两个完整值分别列于下方。 |
+| 两次 `go version -m` 输出中的 vcs 行有何不同？ | `vcs.modified=false` 变为 `vcs.modified=true`；`vcs=git`、`vcs.revision` 和 `vcs.time` 均不变，实际输出见下方。完整输出中的模块版本还增加了 `+dirty` 后缀。 |
+| 仅凭 BUILD_INFO，能否回答该包是什么、在哪台机器上、何时、用哪份代码构建？哪一项信息会出错？ | `name`、`version`、`build_no` 能说明包名和声明的版本、构建号，`go` 能说明 Go 版本；没有构建机器和构建时间字段，无法回答在哪台机器、何时构建。`commit` 只能指出作为基线的提交，未记录未提交修改或工作区是否干净；若据此认定第二个包严格来自该提交的源码快照，就会判断错误。相同的版本号、构建号和 `commit` 在本次实验中对应了不同的二进制。 |
+
+### 第一次打包：修改前，工作区干净
+
+`cat dist/enroll-conflict_1.0.0_linux_amd64/BUILD_INFO`：
+
+```text
+name=enroll-conflict
+version=1.0.0
+build_no=1
+run_id=local
+commit=7b63b41c13f061439997b0e6e4eaa2af922a7aa1
+go=go1.26.9
+```
+
+`sha256sum dist/enroll-conflict_1.0.0_linux_amd64/enroll-conflict`：
+
+```text
+f23447d406c42af7dd35e23c2d1b2f15484cfb709cc9b4bb1262643694b8528e  dist/enroll-conflict_1.0.0_linux_amd64/enroll-conflict
+```
+
+`go version -m` 输出中的全部 VCS 行：
+
+```text
+	build	vcs=git
+	build	vcs.revision=7b63b41c13f061439997b0e6e4eaa2af922a7aa1
+	build	vcs.time=2026-10-12T16:26:07Z
+	build	vcs.modified=false
+```
+
+### 第二次打包：修改注释，不提交
+
+临时修改的一行如下；没有修改程序逻辑：
+
+```diff
+-// Weeks 表示一个教学班在哪些周上课。
++// Weeks 表示一个教学班在哪些周上课。（任务 0：临时注释修改，不提交。）
+```
+
+第二次打包前，`git status --porcelain=v1` 的实际输出：
+
+```text
+ M conflict.go
+```
+
+`cat dist/enroll-conflict_1.0.0_linux_amd64/BUILD_INFO`：
+
+```text
+name=enroll-conflict
+version=1.0.0
+build_no=1
+run_id=local
+commit=7b63b41c13f061439997b0e6e4eaa2af922a7aa1
+go=go1.26.9
+```
+
+`sha256sum dist/enroll-conflict_1.0.0_linux_amd64/enroll-conflict`：
+
+```text
+6a578f147d5581d0a95d3b4511436be491a8401f93f3f0d5d49ea5da1966bda5  dist/enroll-conflict_1.0.0_linux_amd64/enroll-conflict
+```
+
+`go version -m` 输出中的全部 VCS 行：
+
+```text
+	build	vcs=git
+	build	vcs.revision=7b63b41c13f061439997b0e6e4eaa2af922a7aa1
+	build	vcs.time=2026-10-12T16:26:07Z
+	build	vcs.modified=true
+```
+
+对比 `dist/task0-evidence/first/BUILD_INFO` 与第二次生成的 `BUILD_INFO`，`diff` 无差异且退出码为 0，操作脚本输出：
+
+```text
+BUILD_INFO 没有变化
+```
+
+本次只改了注释，但 Go 写入二进制的 VCS 状态和模块版本信息发生了变化，因此即使程序逻辑不变，二进制 SHA256 仍然改变。`vcs.time=2026-10-12T16:26:07Z` 是提交时间，不是构建时间；`vcs.modified=true` 能提示存在未提交内容，但不能还原这些内容。
+
+### 恢复与证据保留
+
+已从构建前保存的原文件恢复 `conflict.go`，`git diff --exit-code -- conflict.go` 退出码为 0。恢复后的文件 SHA256 与构建前一致：
+
+```text
+69a4ed5bf918cc8cfb9366ffc61f1872a3b9996aeb74d074c12028bc3fc0c1e3  conflict.go
+```
+
+恢复后、填写本节前，`git status --porcelain=v1` 无输出。两次打包的二进制、`BUILD_INFO`、压缩包、校验文件、构建日志及完整 `go version -m` 输出分别保存在本机 `dist/task0-evidence/first/` 和 `dist/task0-evidence/second/`；两份压缩包均通过 `sha256sum -c` 校验。该证据目录位于已忽略的 `dist/` 内，不影响第一次构建的干净状态；执行 `make clean` 会删除它。
+
+以上是任务 0 在模板仓库克隆中的实际记录；任务 2 起使用小组仓库 `/home/sra/lab1`，其 origin 指向 `RyanShen30/ops-lab1-2`。
 
 ## 3. 证据
+
+任务 2 的 [CI 工作流](https://github.com/RyanShen30/ops-lab1-2/blob/main/.github/workflows/ci.yml)与[运行列表](https://github.com/RyanShen30/ops-lab1-2/actions/workflows/ci.yml)：PR 和 push 到 `main` 均运行 `ci`，仅 push 到 `main` 时打包并上传制品，保留 14 天。
 
 | 项 | 链接或文本 |
 |---|---|
