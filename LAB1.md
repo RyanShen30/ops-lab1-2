@@ -120,11 +120,11 @@ BUILD_INFO 没有变化
 
 | 项 | 链接或文本 |
 |---|---|
-| 规则集里启用的规则 | <列出规则名、审批人数和必需检查的名称> |
-| 组长直接 `git push origin main` 被拒的终端输出 | <粘贴文本> |
-| 第一轮：失败的 PR 运行 | <链接> |
-| 第一轮：修复后通过的 PR 运行 | <链接> |
-| 第一轮：合入 main 后的运行（含制品） | <链接> |
+| 规则集里启用的规则 | [main-gate](https://github.com/RyanShen30/ops-lab1-2/rules/25238784)，状态为 Active，作用于默认分支 `main`，Bypass list 为空。启用 `Restrict deletions`、`Block force pushes`、`Require a pull request before merging`（Required approvals = **1**）、`Require status checks to pass`（必需检查为 **`ci`**，来源为 GitHub Actions）。允许的合并方式仅为 **Squash**。 |
+| 组长直接 `git push origin main` 被拒的终端输出 | 见下方“任务 3：直接推送被拒记录”的完整实际输出；GitHub 返回 `GH013`，指出必须通过 PR 且缺少必需的 `ci` 检查。 |
+| 第一轮：失败的 PR 运行 | [PR #2](https://github.com/RyanShen30/ops-lab1-2/pull/2) 的 [ci #3](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100037612)，`Test` 步骤失败。 |
+| 第一轮：修复后通过的 PR 运行 | [ci #4](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100223291) 通过；随后清理临时注释的 [ci #5](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100712651) 也通过。 |
+| 第一轮：合入 main 后的运行（含制品） | 待 PR #2 经另一位组员审批并 squash 合并后填写。 |
 | 第二轮：找到的缺陷，以及现有测试为何无法发现它 | <一两句话> |
 | 第二轮：仅含缺陷时仍然通过的运行 | <链接> |
 | 第二轮：补测试后失败的运行 | <链接> |
@@ -132,6 +132,40 @@ BUILD_INFO 没有变化
 | 未合入分支上的 tag 被 release gate 拒绝的运行 | <链接> |
 | Release v1.0.0 | <链接> |
 | Release v1.0.1 | <链接> |
+
+### 任务 3：直接推送被拒记录
+
+以下终端输出由组长完成验证后提供。规则集配置已通过 GitHub API 复核，与上表一致。
+
+```text
+git push origin main
+Enumerating objects: 1, done.
+Counting objects: 100% (1/1), done.
+Writing objects: 100% (1/1), 192 bytes | 192.00 KiB/s, done.
+Total 1 (delta 0), reused 0 (delta 0), pack-reused 0
+remote: error: GH013: Repository rule violations found for refs/heads/main.
+remote: Review all repository rules at https://github.com/RyanShen30/ops-lab1-2/rules?ref=refs%2Fheads%2Fmain
+remote:
+remote: - Changes must be made through a pull request.
+remote:
+remote: - Required status check "ci" is expected.
+remote:
+To https://github.com/RyanShen30/ops-lab1-2.git
+ ! [remote rejected] main -> main (push declined due to repository rule violations)
+error: failed to push some refs to 'https://github.com/RyanShen30/ops-lab1-2.git'
+```
+
+验证结论：直接推送 `main` 因仓库规则被拒绝，该次推送没有更新远端 `main`。测试用的本地空提交已清理。本节记录与任务 4 第一轮证据一并通过 [PR #2](https://github.com/RyanShen30/ops-lab1-2/pull/2) 提交；后续修改通过 PR、另一位组员审批及 `ci` 检查后合入。
+
+### 任务 4：第一轮 gate 演练
+
+在从 `main` 创建的 `test/gate-round1` 分支上，首个提交同时新增“单双周部分重叠不冲突”测试，并将 `weeksOverlap` 的最后返回值临时改为 `true`。新增用例的两个课程节次部分重叠，但分别在单周、双周上课，预期不冲突。提交后发起 PR #2，ci #3 的格式检查和 `Go vet` 通过，`Test` 失败，后续打包和上传步骤未执行。
+
+失败阶段的截图中，必需检查 `ci / ci (pull_request)` 显示失败，`Squash and merge` 按钮不可用；合并区显示 `Merging is blocked`，同时提示 `At least 1 approving review is required by reviewers with write access.`。该截图也说明当时尚缺组员审批；测试失败的具体证据见上表 ci #3。
+
+随后在同一分支追加[修复提交](https://github.com/RyanShen30/ops-lab1-2/commit/da2d9170a2ed5fa93fdc02470c944335bcbcc8e1)，恢复 `return a == b`，保留新增测试，ci #4 通过。再追加[清理临时注释的提交](https://github.com/RyanShen30/ops-lab1-2/commit/42ed4a94f599a5653a3320a1abbae1b6cc9b790a)，ci #5 通过；最终生产代码恢复为原判断，仅保留新增测试。PR 的全部后续检查可在 [PR #2 检查列表](https://github.com/RyanShen30/ops-lab1-2/pull/2/checks)中查看。
+
+截至本次记录，尚待另一位组员审批、squash 合并，以及核对合入 `main` 后的 push 运行和制品。合并时间及对应运行链接将在事件发生后补充。
 
 ## 4. 追溯与运行
 
@@ -171,17 +205,19 @@ BUILD_INFO 没有变化
 
 ## 5. 数据
 
-时间均从 GitHub 页面读取，并注明时区。
+本轮时间统一使用 `Asia/Shanghai`（UTC+08:00）。GitHub 事件通过 API 读取，可在对应页面核对；`ci` 结束时间采用必需检查所在 `ci` job 的 `completed_at`。修复推送时间来自操作者提供的终端记录，按时间区间保留，不用提交时间替代推送时间。
 
 第一轮 gate 演练的时间线：
 
 | 事件 | 时间 | 链接 |
 |---|---|---|
-| 发起 PR | <填写> | <PR 链接> |
-| 第一次 `ci` 失败（运行结束） | <填写> | <链接> |
-| 推送修复提交 | <填写> | <链接> |
-| `ci` 通过（运行结束） | <填写> | <链接> |
-| 合入 main | <填写> | <链接> |
+| 发起 PR | 2026-10-18 13:17:17 +08:00 | [PR #2](https://github.com/RyanShen30/ops-lab1-2/pull/2) |
+| 第一次 `ci` 失败（ci job 结束） | 2026-10-18 13:17:35 +08:00 | [ci #3 的 ci job](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100037612/job/117594257961) |
+| 推送修复提交 | 2026-10-18 13:20:23～13:20:42 +08:00（终端记录区间） | [修复提交](https://github.com/RyanShen30/ops-lab1-2/commit/da2d9170a2ed5fa93fdc02470c944335bcbcc8e1)；原始记录见下方 |
+| `ci` 通过（ci job 结束） | 2026-10-18 13:20:55 +08:00 | [ci #4 的 ci job](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100223291/job/117594799272) |
+| 合入 main | 待审批、合并后填写 | [PR #2](https://github.com/RyanShen30/ops-lab1-2/pull/2) |
+
+修复推送前后的终端时间原文为 `2026-10-18T13:20:23+08:00`、`2026-10-18T13:20:42+08:00`。两者给出一个 19 秒的推送时间区间，不能将这 19 秒当作 CI 耗时。上表的通过事件对应首次修复后的 ci #4，后续清理注释的 ci #5 不替代该事件。
 
 提交到发布的间隔，至少记录三个合入的 PR：
 
