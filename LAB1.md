@@ -129,6 +129,7 @@ BUILD_INFO 没有变化
 | 第二轮：仅含缺陷时仍然通过的运行 | [PR #3](https://github.com/RyanShen30/ops-lab1-2/pull/3) 的 [ci #8](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106019814)，success；仅含缺陷提交 d1e21a4，未审批、未合并。 |
 | 第二轮：补测试后失败的运行 | [ci #9](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106084105)，Test 步骤失败，新增 TestValidSinglePeriod 在 all、odd、even 三种周次下均发现缺陷。 |
 | 第二轮：撤销缺陷后通过的运行 | [ci #10](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106121523)，success；通过 git revert d1e21a4 撤销缺陷，保留新增测试。 |
+| 第二轮：审批与合入 main 后的运行 | [PR #3 审批](https://github.com/RyanShen30/ops-lab1-2/pull/3#pullrequestreview-5561903762)；2026-10-18 15:14:54 +08:00 squash 合入；[ci #12](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106946423) 全部成功并产出制品。 |
 | 未合入分支上的 tag 被 release gate 拒绝的运行 | <链接> |
 | Release v1.0.0 | <链接> |
 | Release v1.0.1 | <链接> |
@@ -174,7 +175,10 @@ error: failed to push some refs to 'https://github.com/RyanShen30/ops-lab1-2.git
 1. 从最新 main（fdbd649）创建分支，仅提交 Valid 的缺陷。现有 make fmt-check vet test 全通过；PR #3 于 2026-10-18 14:59:51 创建，ci #8 于 15:00:13 结束并通过。当时 review 列表为空、PR 的 mergeable_state 为 blocked：自动检查未发现错误，仍由人工审批门禁阻止合入；此阶段未审批也未合并。
 2. 在同一分支追加 TestValidSinglePeriod，使用 Start=End=2，分别覆盖 AllWeeks、OddWeeks、EvenWeeks。该测试依据“起始节次、结束节次均含”的规则，预期三种单节课程均合法。ci #9 的 Test 于 15:00:57 失败，错误显示三种输入均被错误拒绝。
 3. 执行 git revert d1e21a4e9ad8c6019254e3b4f042394025d3a6d2，生成 2c174f9，保留新增测试。make fmt-check vet test 重新全部通过，git diff --exit-code origin/main -- conflict.go 无差异。对应 ci #10 通过。
-4. 本 PR 同时补齐第一轮审批、合并、main push 运行和制品记录。最终生产逻辑与 main 一致，代码改动仅新增回归测试；实验记录也一并更新。第二轮待另一位组员审批后 squash 合并，最终提交标题使用“test: 补充单节课程合法性边界测试”，正文描述新增测试和记录证据，删除自动列出的缺陷与 revert 等演练提交说明。此处尚未声称第二轮已合入。
+4. PR #3 同时补齐第一轮审批、合并、main push 运行和制品记录。组员 [RyanShen30 于 2026-10-18 15:13:40 +08:00 审批通过](https://github.com/RyanShen30/ops-lab1-2/pull/3#pullrequestreview-5561903762)，并于 15:14:54 squash 合入 main，生成提交 [7abf6c457a5b6c093356f322c215952ca06e41f2](https://github.com/RyanShen30/ops-lab1-2/commit/7abf6c457a5b6c093356f322c215952ca06e41f2)。最终标题为“test: 补充单节课程合法性边界测试 (#3)”。该提交仅有一个父提交 fdbd649，代码差异仅新增 TestValidSinglePeriod，生产逻辑 conflict.go 与合并前一致。
+5. 合入后的 [ci #12](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106946423) 为 main 的 push 运行，提交号与上述 squash 提交一致；[ci job](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106946423/job/117614764107) 于 15:14:58 开始、15:15:14 结束，所有步骤成功，包含打包和上传。生成 artifact `enroll-conflict-7abf6c457a5b6c093356f322c215952ca06e41f2-build-12-attempt-1`（ID 12128717018）。
+
+合并说明检查的实际偏差：PR #3 合并时未清理自动生成的正文，“introduce single-period validation defect”和 revert 等演练提交说明仍保留在 main 的提交正文中。这一点未满足指导书对合并说明清理的要求；最终代码没有保留缺陷。本记录如实保留该偏差，不通过强制推送改写受保护的 main 历史。
 
 ci #9 新增测试的失败输出（服务器本地与 Actions 均发现相同问题）：
 
@@ -298,4 +302,5 @@ FAIL
 
 | GitHub 用户名 | 发起并合入的 PR 编号 | 审批过的 PR 编号 |
 |---|---|---|
-| <用户名> | <编号> | <编号> |
+| RyanShen30 | [#2](https://github.com/RyanShen30/ops-lab1-2/pull/2) | [#3](https://github.com/RyanShen30/ops-lab1-2/pull/3#pullrequestreview-5561903762) |
+| Liuxiang400 | [#3](https://github.com/RyanShen30/ops-lab1-2/pull/3) | [#2](https://github.com/RyanShen30/ops-lab1-2/pull/2#pullrequestreview-5561740627) |
