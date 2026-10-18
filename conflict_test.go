@@ -52,3 +52,12 @@ func TestValid(t *testing.T) {
 		}
 	}
 }
+
+func TestValidSinglePeriod(t *testing.T) {
+	for _, weeks := range []Weeks{AllWeeks, OddWeeks, EvenWeeks} {
+		s := Section{Weekday: 1, Start: 2, End: 2, Weeks: weeks}
+		if !s.Valid() {
+			t.Errorf("single-period section should be valid: %+v", s)
+		}
+	}
+}
