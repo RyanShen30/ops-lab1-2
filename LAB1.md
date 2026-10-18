@@ -124,11 +124,11 @@ BUILD_INFO 没有变化
 | 组长直接 `git push origin main` 被拒的终端输出 | 见下方“任务 3：直接推送被拒记录”的完整实际输出；GitHub 返回 `GH013`，指出必须通过 PR 且缺少必需的 `ci` 检查。 |
 | 第一轮：失败的 PR 运行 | [PR #2](https://github.com/RyanShen30/ops-lab1-2/pull/2) 的 [ci #3](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100037612)，`Test` 步骤失败。 |
 | 第一轮：修复后通过的 PR 运行 | [ci #4](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100223291) 通过；随后清理临时注释的 [ci #5](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100712651) 也通过。 |
-| 第一轮：合入 main 后的运行（含制品） | 待 PR #2 经另一位组员审批并 squash 合并后填写。 |
-| 第二轮：找到的缺陷，以及现有测试为何无法发现它 | <一两句话> |
-| 第二轮：仅含缺陷时仍然通过的运行 | <链接> |
-| 第二轮：补测试后失败的运行 | <链接> |
-| 第二轮：撤销缺陷后通过的运行 | <链接> |
+| 第一轮：合入 main 后的运行（含制品） | [ci #7](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39105597138)，事件为 push，分支 main，结果 success；Package 和 Upload 均成功，产出 build-7-attempt-1 制品。 |
+| 第二轮：找到的缺陷，以及现有测试为何无法发现它 | 将 Valid 中拒绝 End < Start 改为拒绝 End <= Start，导致起止节次相同的合法单节课程被拒绝。Section 注释规定起止节次均包含；原有合法用例仅覆盖 Start < End，缺少 Start == End 的边界测试。 |
+| 第二轮：仅含缺陷时仍然通过的运行 | [PR #3](https://github.com/RyanShen30/ops-lab1-2/pull/3) 的 [ci #8](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106019814)，success；仅含缺陷提交 d1e21a4，未审批、未合并。 |
+| 第二轮：补测试后失败的运行 | [ci #9](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106084105)，Test 步骤失败，新增 TestValidSinglePeriod 在 all、odd、even 三种周次下均发现缺陷。 |
+| 第二轮：撤销缺陷后通过的运行 | [ci #10](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106121523)，success；通过 git revert d1e21a4 撤销缺陷，保留新增测试。 |
 | 未合入分支上的 tag 被 release gate 拒绝的运行 | <链接> |
 | Release v1.0.0 | <链接> |
 | Release v1.0.1 | <链接> |
@@ -165,7 +165,26 @@ error: failed to push some refs to 'https://github.com/RyanShen30/ops-lab1-2.git
 
 随后在同一分支追加[修复提交](https://github.com/RyanShen30/ops-lab1-2/commit/da2d9170a2ed5fa93fdc02470c944335bcbcc8e1)，恢复 `return a == b`，保留新增测试，ci #4 通过。再追加[清理临时注释的提交](https://github.com/RyanShen30/ops-lab1-2/commit/42ed4a94f599a5653a3320a1abbae1b6cc9b790a)，ci #5 通过；最终生产代码恢复为原判断，仅保留新增测试。PR 的全部后续检查可在 [PR #2 检查列表](https://github.com/RyanShen30/ops-lab1-2/pull/2/checks)中查看。
 
-截至本次记录，尚待另一位组员审批、squash 合并，以及核对合入 `main` 后的 push 运行和制品。合并时间及对应运行链接将在事件发生后补充。
+组员 [Liuxiang400 于 2026-10-18 14:26:50 +08:00 审批通过](https://github.com/RyanShen30/ops-lab1-2/pull/2#pullrequestreview-5561740627)。最终更新记录的 ci #6 也通过。PR #2 于 2026-10-18 14:52:40 +08:00 squash 合入 main，生成提交 `fdbd6495969e9f18bc2823b5b03566a435a6c541`。最终标题为“test: 补充单双周课程冲突测试 (#2)”，正文仅保留新增测试和记录证据的说明。合并后 [ci #7](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39105597138) 于 14:52:42 触发，ci job 于 14:52:58 结束并成功，工作流于 14:52:59 更新为完成。打包和上传均成功，生成 artifact `enroll-conflict-fdbd6495969e9f18bc2823b5b03566a435a6c541-build-7-attempt-1`（ID 12128755180）。
+
+### 任务 4：第二轮 gate 演练
+
+本轮在服务器 /home/lx/ops-lab1-2 的 test/gate-round2 分支操作，PR 作者为 Liuxiang400。所有时间均为 Asia/Shanghai（UTC+08:00）。
+
+1. 从最新 main（fdbd649）创建分支，仅提交 Valid 的缺陷。现有 make fmt-check vet test 全通过；PR #3 于 2026-10-18 14:59:51 创建，ci #8 于 15:00:13 结束并通过。当时 review 列表为空、PR 的 mergeable_state 为 blocked：自动检查未发现错误，仍由人工审批门禁阻止合入；此阶段未审批也未合并。
+2. 在同一分支追加 TestValidSinglePeriod，使用 Start=End=2，分别覆盖 AllWeeks、OddWeeks、EvenWeeks。该测试依据“起始节次、结束节次均含”的规则，预期三种单节课程均合法。ci #9 的 Test 于 15:00:57 失败，错误显示三种输入均被错误拒绝。
+3. 执行 git revert d1e21a4e9ad8c6019254e3b4f042394025d3a6d2，生成 2c174f9，保留新增测试。make fmt-check vet test 重新全部通过，git diff --exit-code origin/main -- conflict.go 无差异。对应 ci #10 通过。
+4. 本 PR 同时补齐第一轮审批、合并、main push 运行和制品记录。最终生产逻辑与 main 一致，代码改动仅新增回归测试；实验记录也一并更新。第二轮待另一位组员审批后 squash 合并，最终提交标题使用“test: 补充单节课程合法性边界测试”，正文描述新增测试和记录证据，删除自动列出的缺陷与 revert 等演练提交说明。此处尚未声称第二轮已合入。
+
+ci #9 新增测试的失败输出（服务器本地与 Actions 均发现相同问题）：
+
+```text
+--- FAIL: TestValidSinglePeriod (0.00s)
+    conflict_test.go:60: single-period section should be valid: {ID: Weekday:1 Start:2 End:2 Weeks:all}
+    conflict_test.go:60: single-period section should be valid: {ID: Weekday:1 Start:2 End:2 Weeks:odd}
+    conflict_test.go:60: single-period section should be valid: {ID: Weekday:1 Start:2 End:2 Weeks:even}
+FAIL
+```
 
 ## 4. 追溯与运行
 
@@ -215,7 +234,8 @@ error: failed to push some refs to 'https://github.com/RyanShen30/ops-lab1-2.git
 | 第一次 `ci` 失败（ci job 结束） | 2026-10-18 13:17:35 +08:00 | [ci #3 的 ci job](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100037612/job/117594257961) |
 | 推送修复提交 | 2026-10-18 13:20:23～13:20:42 +08:00（终端记录区间） | [修复提交](https://github.com/RyanShen30/ops-lab1-2/commit/da2d9170a2ed5fa93fdc02470c944335bcbcc8e1)；原始记录见下方 |
 | `ci` 通过（ci job 结束） | 2026-10-18 13:20:55 +08:00 | [ci #4 的 ci job](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100223291/job/117594799272) |
-| 合入 main | 待审批、合并后填写 | [PR #2](https://github.com/RyanShen30/ops-lab1-2/pull/2) |
+| 合入 main | 2026-10-18 14:52:40 +08:00 | [PR #2](https://github.com/RyanShen30/ops-lab1-2/pull/2) |
+| main push 的 ci 通过（ci job 结束） | 2026-10-18 14:52:58 +08:00 | [ci #7 的 ci job](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39105597138/job/117610631633) |
 
 修复推送前后的终端时间原文为 `2026-10-18T13:20:23+08:00`、`2026-10-18T13:20:42+08:00`。两者给出一个 19 秒的推送时间区间，不能将这 19 秒当作 CI 耗时。上表的通过事件对应首次修复后的 ci #4，后续清理注释的 ci #5 不替代该事件。
 
