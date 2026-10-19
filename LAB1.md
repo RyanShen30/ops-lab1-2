@@ -130,8 +130,8 @@ BUILD_INFO 没有变化
 | 第二轮：补测试后失败的运行 | [ci #9](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106084105)，Test 步骤失败，新增 TestValidSinglePeriod 在 all、odd、even 三种周次下均发现缺陷。 |
 | 第二轮：撤销缺陷后通过的运行 | [ci #10](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106121523)，success；通过 git revert d1e21a4 撤销缺陷，保留新增测试。 |
 | 第二轮：审批与合入 main 后的运行 | [PR #3 审批](https://github.com/RyanShen30/ops-lab1-2/pull/3#pullrequestreview-5561903762)；2026-10-18 15:14:54 +08:00 squash 合入；[ci #12](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106946423) 全部成功并产出制品。 |
-| 未合入分支上的 tag 被 release gate 拒绝的运行 | <链接> |
-| Release v1.0.0 | <链接> |
+| 未合入分支上的 tag 被 release gate 拒绝的运行 | 任务 5 进行中；完成 Actions 实测后填写运行链接。 |
+| Release v1.0.0 | 待任务 5 的发布工作流经审批合入 `main` 后发布，当前尚无 Release。 |
 | Release v1.0.1 | <链接> |
 
 ### 任务 3：直接推送被拒记录
@@ -189,6 +189,28 @@ ci #9 新增测试的失败输出（服务器本地与 Actions 均发现相同�
     conflict_test.go:60: single-period section should be valid: {ID: Weekday:1 Start:2 End:2 Weeks:even}
 FAIL
 ```
+
+### 任务 5：发布工作流
+
+负责人：`ashkirakira`。新增 `.github/workflows/release.yml`，由符合 `v[0-9]+.[0-9]+.[0-9]+` 的 tag push 触发，执行顺序如下：
+
+1. 使用 `ubuntu-24.04`、`actions/checkout@v7` 和 `fetch-depth: 0` 获取完整历史。首先运行 `git merge-base --is-ancestor "$GITHUB_SHA" origin/main`；不在主干历史上的提交立即失败，不进入编译或创建 Release 的步骤。
+2. 使用 `actions/setup-go@v7` 安装固定版本 Go `1.26.9`，分别执行 `make fmt-check`、`make vet`、`make test`，任一步失败都会停止发布。
+3. 从 tag 去掉开头的 `v` 得到 `VERSION`，将 `github.run_number`、`github.run_id`、`github.sha` 分别作为 `BUILD_NO`、`RUN_ID`、`COMMIT` 传给 `make package`。这些标识由事件上下文提供，通过环境变量进入脚本；`BUILD_INFO` 由已有 Makefile 写入制品。
+4. 打印二进制和 `.tar.gz` 的 SHA-256，并执行 `sha256sum -c` 校验生成的压缩包。最后用 `gh release create --verify-tag` 创建 Release，上传 `.tar.gz` 和同名 `.sha256` 两个附件。仅本发布工作流申请 `contents: write`，原有 `ci` 仍为只读权限。
+
+本地预检使用 Go `1.26.6`（满足指导书本地最低版本 `1.26`）：`make fmt-check vet test` 全部通过。该结果仅说明本地代码检查通过；Actions 使用的 Go 版本固定为 `1.26.9`，正式发布结果以对应运行和 Release 附件为准。
+
+当前状态：发布工作流尚未合入 `main`，任务 5 尚未全部完成。必须在 PR 的 `ci` 通过、另一位组员审批并 squash 合入后，再执行以下发布步骤；不能将本分支提交直接标记为 `v1.0.0`。
+
+```bash
+git switch main
+git pull --ff-only
+git tag -a v1.0.0 -m "v1.0.0"
+git push origin v1.0.0
+```
+
+发布成功后，从 Release 下载两个附件到 `dist/release/`，在该目录执行 `sha256sum -c enroll-conflict_1.0.0_linux_amd64.tar.gz.sha256`，将实际 SHA-256、构建号、提交号、PR 和运行链接填入第 4 节，作为任务 6 的旧版本对照基线。当前不预填尚未产生的发布结果。
 
 ## 4. 追溯与运行
 

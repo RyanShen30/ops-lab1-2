@@ -1,0 +1,66 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Release gate
+        run: |
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            printf '::error::Tag %s points to %s, which is not in origin/main history.\n' \
+              "$GITHUB_REF_NAME" "$GITHUB_SHA"
+            exit 1
+          fi
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: '1.26.9'
+          # The sample has no external dependencies or go.sum.
+          cache-dependency-path: go.mod
+
+      - name: Check formatting
+        run: make fmt-check
+
+      - name: Go vet
+        run: make vet
+
+      - name: Test
+        run: make test
+
+      - name: Package release and verify checksums
+        env:
+          BUILD_NO: ${{ github.run_number }}
+          RUN_ID: ${{ github.run_id }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          make package VERSION="$version" \
+            BUILD_NO="$BUILD_NO" RUN_ID="$RUN_ID" COMMIT="$COMMIT"
+          sha256sum \
+            "dist/enroll-conflict_${version}_linux_amd64/enroll-conflict" \
+            "dist/enroll-conflict_${version}_linux_amd64.tar.gz"
+          (cd dist && sha256sum -c "enroll-conflict_${version}_linux_amd64.tar.gz.sha256")
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --verify-tag \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes \
+            dist/*.tar.gz dist/*.tar.gz.sha256
