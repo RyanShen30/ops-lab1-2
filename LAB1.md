@@ -131,7 +131,7 @@ BUILD_INFO 没有变化
 | 第二轮：撤销缺陷后通过的运行 | [ci #10](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106121523)，success；通过 git revert d1e21a4 撤销缺陷，保留新增测试。 |
 | 第二轮：审批与合入 main 后的运行 | [PR #3 审批](https://github.com/RyanShen30/ops-lab1-2/pull/3#pullrequestreview-5561903762)；2026-10-18 15:14:54 +08:00 squash 合入；[ci #12](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106946423) 全部成功并产出制品。 |
 | 未合入分支上的 tag 被 release gate 拒绝的运行 | [release #1](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39197867811)，测试 tag `v0.0.1` 指向未合入 main 的提交，`Release gate` 步骤失败，后续步骤跳过；测试 tag 和分支已清理，未生成 Release。 |
-| Release v1.0.0 | 待任务 5 的发布工作流经审批合入 `main` 后发布，当前尚无 Release。 |
+| Release v1.0.0 | [v1.0.0](https://github.com/RyanShen30/ops-lab1-2/releases/tag/v1.0.0)，由 [release #2](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39255772440) 成功发布；两个附件已下载，校验和及追溯检查均通过，实际值见第 4 节。 |
 | Release v1.0.1 | <链接> |
 
 ### 任务 3：直接推送被拒记录
@@ -206,8 +206,10 @@ FAIL
 | 本地代码检查 | Go `1.26.6`（满足指导书本地最低版本 `1.26`）下 `make fmt-check vet test` 全部通过。 |
 | 工作流静态检查 | `actionlint 1.7.12` 检查 `ci.yml` 与 `release.yml` 通过；`git diff --check` 通过。 |
 | 本地打包预检 | 固定 `VERSION=1.0.0`、`BUILD_NO=local-validation`、`RUN_ID=local`、`COMMIT=9fc725b54d6d69e5ce08d639e1608df053dff778` 调用 `make package`，`sha256sum -c` 返回 `OK`；二进制 `-version` 输出的版本、提交号及构建号与参数一致。这里只是本地预检，不是正式 Release 附件。 |
-| PR 的首次 Actions 检查 | [ci #15](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39197858128) 使用 Go `1.26.9`，格式检查、vet、测试全部通过；PR 事件未打包主干制品。文档补充提交的最新状态以 [PR #5 检查列表](https://github.com/RyanShen30/ops-lab1-2/pull/5/checks)为准。 |
+| PR 的 Actions 检查 | 首次 [ci #15](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39197858128) 和补充文档后的 [ci #16](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39198002540) 均通过；使用 Go `1.26.9`，PR 事件未打包主干制品。 |
 | 发布门禁反例 | [release #1](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39197867811) 在 `Release gate` 步骤失败，后续 Go 安装、检查、测试、打包及创建 Release 均为 skipped。 |
+| 合入主干后的 CI | [ci #17](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39207874767) 为 `main` 的 push 运行，提交为 `5c68dd213a4389cf51500b43be2729ecc880a22e`，全部通过。 |
+| 正式发布 | [release #2](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39255772440) 的门禁、格式检查、vet、测试、打包、校验和检查及创建 Release 全部成功，发布 `v1.0.0`。 |
 
 为在审批前提供真实门禁证据，从任务 5 的实现提交 `9fc725b` 创建临时分支 `scratch/gate-test`，追加一个空提交 `d5f2bd15cb59aa15c55faf988f67f15867419066`，再打并推送带注释的测试 tag `v0.0.1`。该提交包含发布工作流，但不在 `origin/main` 历史上。Actions 于 `2026-10-19 12:07:07 +08:00` 拒绝发布，日志中的实际错误为：
 
@@ -216,40 +218,68 @@ Tag v0.0.1 points to d5f2bd15cb59aa15c55faf988f67f15867419066, which is not in o
 Process completed with exit code 1.
 ```
 
-随后删除远端 `v0.0.1` 和 `scratch/gate-test`，并删除本地对应 tag、分支。`git ls-remote origin refs/tags/v0.0.1 refs/heads/scratch/gate-test` 无输出；GitHub Releases API 返回空列表，确认未留下测试 Release。失败运行记录予以保留，供现场检查核对。
+随后删除远端 `v0.0.1` 和 `scratch/gate-test`，并删除本地对应 tag、分支。`git ls-remote origin refs/tags/v0.0.1 refs/heads/scratch/gate-test` 无输出；清理当时 GitHub Releases API 返回空列表，确认未留下测试 Release。失败运行记录予以保留，供现场检查核对。
 
-当前状态：发布工作流尚未合入 `main`，任务 5 尚未全部完成。必须在 PR 的 `ci` 通过、另一位组员审批并 squash 合入后，再执行以下发布步骤；不能将本分支提交直接标记为 `v1.0.0`。
+PR #5 先后经 [Liuxiang400 于 2026-10-19 14:02:40 +08:00 审批](https://github.com/RyanShen30/ops-lab1-2/pull/5#pullrequestreview-5567500720)、[Shundi-Wu 于 14:04:37 +08:00 审批](https://github.com/RyanShen30/ops-lab1-2/pull/5#pullrequestreview-5567512409)，于 `14:04:57 +08:00` squash 合入 `main`，生成提交 `5c68dd213a4389cf51500b43be2729ecc880a22e`。合入后的 ci #17 通过，才进行正式发布。
+
+在该主干提交上执行 `git tag -a v1.0.0 -m "v1.0.0"`。本次 Git 推送连接超时，确认远端尚无此 tag 后，通过 GitHub API 创建相同的带注释 tag 对象与 `refs/tags/v1.0.0` 引用；远端和本地 tag 对象 SHA 均为 `784eb630150219f2bed4924872044d33eb730328`，指向的提交均为上述主干提交。该操作触发 release #2，`v1.0.0` 于 `2026-10-19 20:55:07 +08:00` 发布；没有绕过发布门禁，也没有复用已发布版本号。
+
+发布后下载两个正式附件并完成以下验证：
 
 ```bash
-git switch main
-git pull --ff-only
-git tag -a v1.0.0 -m "v1.0.0"
-git push origin v1.0.0
+gh release download v1.0.0 --repo RyanShen30/ops-lab1-2 \
+  --pattern enroll-conflict_1.0.0_linux_amd64.tar.gz \
+  --pattern enroll-conflict_1.0.0_linux_amd64.tar.gz.sha256 --dir dist/release
+(cd dist/release && sha256sum -c enroll-conflict_1.0.0_linux_amd64.tar.gz.sha256)
+scripts/trace.sh dist/release/enroll-conflict_1.0.0_linux_amd64.tar.gz . origin/main
 ```
 
-发布成功后，从 Release 下载两个附件到 `dist/release/`，在该目录执行 `sha256sum -c enroll-conflict_1.0.0_linux_amd64.tar.gz.sha256`，将实际 SHA-256、构建号、提交号、PR 和运行链接填入第 4 节，作为任务 6 的旧版本对照基线。当前不预填尚未产生的发布结果。
+`sha256sum -c` 输出 `enroll-conflict_1.0.0_linux_amd64.tar.gz: OK`，`trace.sh` 退出码为 **0**。下载文件的 SHA-256 与 Release 的 `.sha256`、GitHub 附件 digest 和 Actions 打包日志四者一致，完整值已记入第 4 节。解压后实际二进制的 SHA-256 为 `f684cdaf5547ddc34178cb7782504e1b29f326eed850ef61e8dc2cdc3f3bef49`，与 Actions 日志一致；执行 `-version` 得到：
+
+```text
+enroll-conflict version=1.0.0 commit=5c68dd213a4389cf51500b43be2729ecc880a22e build_no=2 go=go1.26.9
+```
+
+以上完成任务 5 的发布与校验取证，作为任务 6 的旧版本对照基线；任务 6 的 `v1.0.1` 发布、服务运行及回退尚未执行。
 
 ## 4. 追溯与运行
 
-对 v1.0.0 和 v1.0.1 各运行一次 `scripts/trace.sh`，粘贴输出，并填写下表。
+`v1.0.0` 的任务 5 发布基线与实际追溯输出如下；`v1.0.1` 及回退验证由任务 6 补齐。
 
 | 项 | v1.0.0 | v1.0.1 |
 |---|---|---|
-| 版本号 | <填写> | <填写> |
-| 构建号 | <填写> | <填写> |
-| 提交号（SHA） | <填写> | <填写> |
-| 引入该提交的 PR | <编号与链接> | <编号与链接> |
-| 构建它的 Actions 运行（`trace.sh` 给出的链接） | <链接> | <链接> |
-| 制品 sha256（发布当时，取自 Release 里的 .sha256） | <填写> | <填写> |
+| 版本号 | `1.0.0` | <填写> |
+| 构建号 | `2`（`release` 工作流） | <填写> |
+| 提交号（SHA） | `5c68dd213a4389cf51500b43be2729ecc880a22e` | <填写> |
+| 引入该提交的 PR | [#5](https://github.com/RyanShen30/ops-lab1-2/pull/5) | <编号与链接> |
+| 构建它的 Actions 运行（`trace.sh` 给出的链接） | [release #2，run_id=39255772440](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39255772440) | <链接> |
+| 制品 sha256（发布当时，取自 Release 里的 .sha256） | `d2936cc91dc6afbaaf90279f6501aedf7edb64770c7c0e64865c7589d8d3c415` | <填写> |
 
-仅凭构建号能否唯一确定是哪次运行？v1.0.0 的构建号在 `ci` 和 `release` 的运行列表中各对应哪次运行？<填写>
+仅凭构建号不能唯一确定运行。`v1.0.0` 的构建号为 `2`：在 `ci` 中对应 [ci #2](https://github.com/RyanShen30/ops-lab1-2/actions/runs/38902466874)，它是 PR 事件，提交号为 `8ed1465a9357c4817964229622a9ecc849fc42dd`；在 `release` 中对应上述 [release #2](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39255772440)，它才构建了 `v1.0.0`。两条工作流各自编号，`BUILD_INFO` 的 `run_id=39255772440` 才能直接确定本次发布运行。
 
 发布 v1.0.1 之后重新下载 v1.0.0 的附件，计算得到的 sha256：<填写>。与上表中发布当时的值是否一致？<填写>
 
 `trace.sh` 输出（v1.0.0）：
 
 ```text
-<粘贴>
+== 1. 校验和
+enroll-conflict_1.0.0_linux_amd64.tar.gz: OK
+== 2. 制品里的 BUILD_INFO
+name=enroll-conflict
+version=1.0.0
+build_no=2
+run_id=39255772440
+commit=5c68dd213a4389cf51500b43be2729ecc880a22e
+go=go1.26.9
+== 3. 提交 5c68dd213a4389cf51500b43be2729ecc880a22e
+作者: gaofei <motoori9@gmail.com>
+时间: 2026-10-19T14:04:57+08:00
+标题: ci: 添加任务 5 的 tag 发布与主干门禁 (#5)
+主干: 该提交在 origin/main 的历史上
+指向它的 tag: v1.0.0
+版本号: 1.0.0    构建号: 2
+提交页面（含关联的 PR）: https://github.com/RyanShen30/ops-lab1-2/commit/5c68dd213a4389cf51500b43be2729ecc880a22e
+构建它的运行: https://github.com/RyanShen30/ops-lab1-2/actions/runs/39255772440
 ```
 
 `trace.sh` 输出（v1.0.1）：
@@ -342,6 +372,5 @@ git push origin v1.0.0
 | GitHub 用户名 | 发起并合入的 PR 编号 | 审批过的 PR 编号 |
 |---|---|---|
 | RyanShen30 | [#2](https://github.com/RyanShen30/ops-lab1-2/pull/2) | [#3](https://github.com/RyanShen30/ops-lab1-2/pull/3#pullrequestreview-5561903762) |
-| Liuxiang400 | [#3](https://github.com/RyanShen30/ops-lab1-2/pull/3) | [#2](https://github.com/RyanShen30/ops-lab1-2/pull/2#pullrequestreview-5561740627) |
-
-`ashkirakira` 已发起任务 5 的 [PR #5](https://github.com/RyanShen30/ops-lab1-2/pull/5)，当前待另一位组员审批并合入；合入前不计入上表“发起并合入”的贡献。
+| Liuxiang400 | [#3](https://github.com/RyanShen30/ops-lab1-2/pull/3) | [#2](https://github.com/RyanShen30/ops-lab1-2/pull/2#pullrequestreview-5561740627)、[#5](https://github.com/RyanShen30/ops-lab1-2/pull/5#pullrequestreview-5567500720) |
+| ashkirakira | [#5](https://github.com/RyanShen30/ops-lab1-2/pull/5) | — |
