@@ -23,7 +23,7 @@ func TestVersionEndpoint(t *testing.T) {
 	if err := json.Unmarshal(rec.Body.Bytes(), &got); err != nil {
 		t.Fatalf("/version 不是合法 JSON：%v", err)
 	}
-	if got.Version == "" || got.Commit == "" || got.BuildNo == "" {
+	if got.Version == "" || got.Commit == "" || got.BuildNo == "" || got.RunID == "" {
 		t.Errorf("/version 缺少字段：%+v", got)
 	}
 }

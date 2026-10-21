@@ -10,23 +10,26 @@ import (
 	"runtime"
 )
 
-// 以下三个变量在构建时由 -ldflags "-X main.xxx=..." 注入（见 Makefile）。
+// 以下四个变量在构建时由 -ldflags "-X main.xxx=..." 注入（见 Makefile）。
 // 没有注入时保持默认值，这也是“本地随手 go build”得到的二进制的样子。
+// buildNo 在 ci 与 release 中各自从 1 计数，runID 全局唯一，用来指回构建它的那次运行。
 var (
 	version = "dev"
 	commit  = "unknown"
 	buildNo = "local"
+	runID   = "local"
 )
 
 type versionInfo struct {
 	Version string `json:"version"`
 	Commit  string `json:"commit"`
 	BuildNo string `json:"build_no"`
+	RunID   string `json:"run_id"`
 	Go      string `json:"go"`
 }
 
 func currentVersion() versionInfo {
-	return versionInfo{Version: version, Commit: commit, BuildNo: buildNo, Go: runtime.Version()}
+	return versionInfo{Version: version, Commit: commit, BuildNo: buildNo, RunID: runID, Go: runtime.Version()}
 }
 
 func newMux() *http.ServeMux {
@@ -37,7 +40,7 @@ func newMux() *http.ServeMux {
 		fmt.Fprintln(w, "ok")
 	})
 
-	// “线上跑的是什么”：一次请求回答版本号、提交号、构建号。
+	// “线上跑的是什么”：一次请求回答版本号、提交号、构建号和构建它的运行。
 	mux.HandleFunc("GET /version", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(currentVersion())
@@ -70,7 +73,7 @@ func main() {
 
 	if *showVersion {
 		v := currentVersion()
-		fmt.Printf("enroll-conflict version=%s commit=%s build_no=%s go=%s\n", v.Version, v.Commit, v.BuildNo, v.Go)
+		fmt.Printf("enroll-conflict version=%s commit=%s build_no=%s run_id=%s go=%s\n", v.Version, v.Commit, v.BuildNo, v.RunID, v.Go)
 		return
 	}
 

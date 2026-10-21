@@ -18,7 +18,7 @@ GOOS     ?= linux
 # 用 make package GOARCH=arm64（包名里的 amd64 会变成 arm64）。
 GOARCH   ?= amd64
 
-LDFLAGS := -X main.version=$(VERSION) -X main.commit=$(COMMIT) -X main.buildNo=$(BUILD_NO)
+LDFLAGS := -X main.version=$(VERSION) -X main.commit=$(COMMIT) -X main.buildNo=$(BUILD_NO) -X main.runID=$(RUN_ID)
 DIST    := dist
 PKG     := $(NAME)_$(VERSION)_$(GOOS)_$(GOARCH)
 
