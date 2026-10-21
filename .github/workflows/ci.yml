@@ -22,8 +22,8 @@ jobs:
           go-version: '1.26.9'
           # The sample has no external dependencies or go.sum.
           cache-dependency-path: go.mod
-          # 选做 O2：有缓存组，显式写出 setup-go 的默认值。
-          cache: true
+          # 选做 O2：无缓存组，关闭 setup-go 的缓存作为对照。
+          cache: false
 
       - name: Print event and revision
         env:
