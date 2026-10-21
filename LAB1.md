@@ -362,8 +362,38 @@ go=go1.26.9
 | 选做 | 完成情况与证据 |
 |---|---|
 | O1 容器镜像 | <未做 / 链接、镜像摘要（digest）、运行容器的主机架构> |
-| O2 缓存对反馈时间的影响 | <未做 / 预期、数据与结论> |
-| O3 迁移到小组项目 | <未做 / 仓库链接> |
+| O2 缓存对反馈时间的影响 | 已完成。实验 [PR #9](https://github.com/RyanShen30/ops-lab1-2/pull/9) 不合并；预期、全部 12 次运行与结论见下方“选做 O2”。 |
+| O3 迁移到小组项目 | 未做 |
+
+### 选做 O2：缓存对反馈时间的影响
+
+**预期。** 写在 [PR #9](https://github.com/RyanShen30/ops-lab1-2/pull/9) 的描述中。PR 于 2026-10-21 23:37:51 +08:00 创建，早于第一次运行（23:37:55 创建 job）。要点：示例没有第三方依赖，模块缓存为空；但 setup-go 同时缓存构建缓存 `GOCACHE`，而 Go 1.20 起不再附带预编译的标准库，`go vet`、`go test` 须先编译 `net/http` 等标准库包。预计无缓存时多花 10～20 秒编译，扣除下载缓存的 1～3 秒，有缓存时每次约快 10 秒。
+
+**方法。** 两组在同一个 PR 的同一份代码上运行。提交 `2d9ef69` 显式写 `cache: true`（与默认值相同），为有缓存组，即 ci #22；提交 `704c037` 改为 `cache: false`，为无缓存组，即 ci #23。两组交替执行 Re-run all jobs，每组首次运行加 5 次重跑，共 6 次，全部在 23:37～23:48 +08:00 之间完成。时长取 `ci` job 及各步骤的 `started_at`、`completed_at`，精度为 1 秒；“排队”指 job 创建到开始的时间，不计入 job 时长。日志核对：有缓存组 6 次均为 `Cache restored from key: setup-go-Linux-x64-ubuntu24-go-1.26.9-e6d3eb…`，大小约 43 MB。两组的 Go 1.26.9 均取自 runner 预装的工具缓存（`Found in cache @ /opt/hostedtoolcache/go/1.26.9/x64`），因此两组唯一的差别是是否恢复 setup-go 缓存。
+
+| 组 | 运行 | 开始（+08:00） | ci job 时长（秒） | Set up Go | Go vet | Test | 排队 |
+|---|---|---|---|---|---|---|---|
+| 有缓存 | [ci #22 第 1 次](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627414974/attempts/1) | 23:37:56 | 13 | 2 | 3 | 2 | 1 |
+| 有缓存 | [ci #22 第 2 次](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627414974/attempts/2) | 23:41:52 | 20 | 3 | 7 | 3 | 3 |
+| 有缓存 | [ci #22 第 3 次](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627414974/attempts/3) | 23:43:00 | 22 | 4 | 6 | 4 | 2 |
+| 有缓存 | [ci #22 第 4 次](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627414974/attempts/4) | 23:44:17 | 16 | 3 | 5 | 4 | 2 |
+| 有缓存 | [ci #22 第 5 次](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627414974/attempts/5) | 23:45:35 | 15 | 2 | 5 | 4 | 3 |
+| 有缓存 | [ci #22 第 6 次](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627414974/attempts/6) | 23:46:51 | 10 | 1 | 1 | 2 | 2 |
+| 无缓存 | [ci #23 第 1 次](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627904510/attempts/1) | 23:41:08 | 29 | 2 | 18 | 4 | 2 |
+| 无缓存 | [ci #23 第 2 次](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627904510/attempts/2) | 23:42:26 | 26 | 0 | 17 | 4 | 2 |
+| 无缓存 | [ci #23 第 3 次](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627904510/attempts/3) | 23:43:36 | 29 | 1 | 19 | 4 | 2 |
+| 无缓存 | [ci #23 第 4 次](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627904510/attempts/4) | 23:44:42 | 29 | 1 | 21 | 3 | 2 |
+| 无缓存 | [ci #23 第 5 次](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627904510/attempts/5) | 23:46:09 | 28 | 1 | 17 | 3 | 3 |
+| 无缓存 | [ci #23 第 6 次](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627904510/attempts/6) | 23:47:07 | 27 | 1 | 18 | 3 | 2 |
+
+**结论。** 有缓存组的 job 时长为 10～22 秒，中位数 15.5 秒；无缓存组为 26～29 秒，中位数 28.5 秒。两组区间不重叠，中位数相差约 13 秒，与预期的“约快 10 秒”方向一致、幅度略大。差别几乎全部出现在 `Go vet`：中位数分别为 5 秒和 18 秒。`Test` 两组都是 2～4 秒，因为同一个 job 中 `go vet` 已把标准库的编译结果写进 `GOCACHE`，`go test` 直接复用。`Set up Go` 在有缓存时因下载约 43 MB 的缓存略慢，中位数为 2.5 秒对 1 秒。所以对本示例来说，缓存节省的不是依赖下载，而是标准库的编译。
+
+**波动来源与局限。**
+
+- 有缓存组 6 次都命中同一个缓存，`Go vet` 仍在 1～7 秒之间波动，job 时长在 10～22 秒之间。这部分波动来自共享 runner 每次分配到的机器的 CPU 和磁盘性能；缓存下载速度在 12～129 MB/s 之间，也受网络影响。
+- 时间戳精度为 1 秒，单个步骤只有 0～4 秒时相对误差很大；排队时间（1～3 秒）不计入 job 时长，但计入开发者实际等待的时间。
+- 每组只有 6 次，集中在同一天深夜的 10 分钟内，只覆盖一份代码。不同时段的 runner 负载不同，结论只说明本示例在 `ubuntu-24.04` runner 上大约能省十几秒，不能推广为固定比例。有第三方依赖的项目还会节省模块下载时间，差距可能更大。
+- 缓存键只由 Go 版本和 `go.mod` 的哈希决定，setup-go 只在未命中时保存。本组 `go.mod` 一直未变，命中的始终是 2026-10-16 main 上第一次 push 运行保存的缓存。随着代码变化，其中业务包的编译结果会过期，但标准库部分仍然有效，所以这个结论在 `go.mod` 和 Go 版本不变期间成立。
 
 ## 8. 成员贡献
 
