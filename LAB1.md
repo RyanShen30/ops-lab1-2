@@ -370,17 +370,61 @@ f684cdaf5547ddc34178cb7782504e1b29f326eed850ef61e8dc2cdc3f3bef49  enroll-conflic
 
 提交到发布的间隔，至少记录三个合入的 PR：
 
+“第一个提交的时间”取 PR 中最早提交的作者时间，“合入时间”取 squash 合入时间，均来自 GitHub API；“对应 Release”是第一个包含该提交的版本。表中列出全部 7 个合入的 PR。
+
 | PR | 第一个提交的时间 | 合入时间 | 对应 Release 的发布时间 | 提交到发布的间隔 |
 |---|---|---|---|---|
-| #<编号> | <填写> | <填写> | <填写> | <填写> |
-| #<编号> | <填写> | <填写> | <填写> | <填写> |
-| #<编号> | <填写> | <填写> | <填写> | <填写> |
+| [#2](https://github.com/RyanShen30/ops-lab1-2/pull/2) | 2026-10-18 13:15:17 | 2026-10-18 14:52:40 | v1.0.0：2026-10-19 20:55:07 | 1 天 7 小时 39 分（31.7 小时） |
+| [#3](https://github.com/RyanShen30/ops-lab1-2/pull/3) | 2026-10-18 14:59:32 | 2026-10-18 15:14:54 | v1.0.0：2026-10-19 20:55:07 | 1 天 5 小时 56 分（29.9 小时） |
+| [#4](https://github.com/RyanShen30/ops-lab1-2/pull/4) | 2026-10-18 15:16:11 | 2026-10-18 15:18:58 | v1.0.0：2026-10-19 20:55:07 | 1 天 5 小时 39 分（29.7 小时） |
+| [#5](https://github.com/RyanShen30/ops-lab1-2/pull/5) | 2026-10-19 12:06:46 | 2026-10-19 14:04:57 | v1.0.0：2026-10-19 20:55:07 | 8 小时 48 分（8.8 小时） |
+| [#6](https://github.com/RyanShen30/ops-lab1-2/pull/6) | 2026-10-19 20:58:39 | 2026-10-19 21:33:58 | v1.0.1：2026-10-22 10:52:33 | 2 天 13 小时 54 分（61.9 小时） |
+| [#7](https://github.com/RyanShen30/ops-lab1-2/pull/7) | 2026-10-21 23:35:49 | 2026-10-22 10:50:02 | v1.0.1：2026-10-22 10:52:33 | 11 小时 17 分（11.3 小时） |
+| [#8](https://github.com/RyanShen30/ops-lab1-2/pull/8) | 2026-10-21 23:37:02 | 2026-10-22 10:50:49 | v1.0.1：2026-10-22 10:52:33 | 11 小时 16 分（11.3 小时） |
+
+把间隔拆成“提交到合入”和“合入到发布”两段：
+
+- #2～#5 的“合入到发布”分别为 30.0、29.7、29.6、6.8 小时，等的是任务 5 的发布工作流完成。
+- #6 合入后等了 61.3 小时才随 v1.0.1 发布。
+- #7、#8 的“提交到合入”约 11.2 小时，其中大部分是夜间等待组员审批；合入后 2 分 31 秒和 1 分 44 秒即发布。
 
 `ci` 工作流的运行时长（从 Actions 页面读取），至少 5 次，全部列出，不要只给出平均值：
 
-| 运行 | 事件（PR / push） | 时长 | 备注 |
-|---|---|---|---|
-| #<编号> | <填写> | <填写> | <填写> |
+“时长”取第 1 次尝试的 `run_started_at` 到 `updated_at`，与 Actions 页面的运行时长一致；备注中另列 `ci` job 本身的时长。开始时间为 +08:00。下表列出截至 2026-10-22 的全部 27 次运行。
+
+| [#1](https://github.com/RyanShen30/ops-lab1-2/actions/runs/38877464989/attempts/1) | push | 44 秒 | 10-16 17:00，main `ba1c247`，成功，ci job 40 秒；main 上第一次运行，缓存未命中，运行结束时保存缓存 |
+| [#2](https://github.com/RyanShen30/ops-lab1-2/actions/runs/38902466874/attempts/1) | PR | 28 秒 | 10-16 20:42，PR #1 `8ed1465`，成功，ci job 25 秒 |
+| [#3](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100037612/attempts/1) | PR | 15 秒 | 10-18 13:17，PR #2 `e0bbb94`，失败，ci job 12 秒；第一轮演练，Test 失败 |
+| [#4](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100223291/attempts/1) | PR | 17 秒 | 10-18 13:20，PR #2 `da2d917`，成功，ci job 14 秒 |
+| [#5](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100712651/attempts/1) | PR | 20 秒 | 10-18 13:29，PR #2 `42ed4a9`，成功，ci job 17 秒 |
+| [#6](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39101086698/attempts/1) | PR | 9 秒 | 10-18 13:35，PR #2 `343f804`，成功，ci job 6 秒 |
+| [#7](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39105597138/attempts/1) | push | 17 秒 | 10-18 14:52，main `fdbd649`，成功，ci job 14 秒 |
+| [#8](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106019814/attempts/1) | PR | 20 秒 | 10-18 14:59，PR #3 `d1e21a4`，成功，ci job 17 秒 |
+| [#9](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106084105/attempts/1) | PR | 12 秒 | 10-18 15:00，PR #3 `4844565`，失败，ci job 10 秒；第二轮演练补测试后，Test 失败 |
+| [#10](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106121523/attempts/1) | PR | 9 秒 | 10-18 15:01，PR #3 `2c174f9`，成功，ci job 7 秒 |
+| [#11](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106167982/attempts/1) | PR | 11 秒 | 10-18 15:02，PR #3 `9b2e133`，成功，ci job 8 秒 |
+| [#12](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106946423/attempts/1) | push | 19 秒 | 10-18 15:14，main `7abf6c4`，成功，ci job 16 秒 |
+| [#13](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39107045097/attempts/1) | PR | 16 秒 | 10-18 15:16，PR #4 `152e7e5`，成功，ci job 13 秒 |
+| [#14](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39107198788/attempts/1) | push | 14 秒 | 10-18 15:19，main `2fa5339`，成功，ci job 11 秒 |
+| [#15](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39197858128/attempts/1) | PR | 11 秒 | 10-19 12:06，PR #5 `9fc725b`，成功，ci job 9 秒 |
+| [#16](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39198002540/attempts/1) | PR | 15 秒 | 10-19 12:08，PR #5 `c26f469`，成功，ci job 11 秒 |
+| [#17](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39207874767/attempts/1) | push | 20 秒 | 10-19 14:04，main `5c68dd2`，成功，ci job 16 秒 |
+| [#18](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39256355198/attempts/1) | PR | 12 秒 | 10-19 20:59，PR #6 `9bc37b1`，成功，ci job 8 秒 |
+| [#19](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39261248331/attempts/1) | push | 20 秒 | 10-19 21:34，main `e2b9edb`，成功，ci job 17 秒 |
+| [#20](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627154197/attempts/1) | PR | 23 秒 | 10-21 23:36，PR #7 `8ca9120`，成功，ci job 18 秒 |
+| [#21](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627305858/attempts/1) | PR | 13 秒 | 10-21 23:37，PR #8 `16e58f1`，成功，ci job 10 秒 |
+| [#22](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627414974/attempts/1) | PR | 16 秒 | 10-21 23:37，PR #9 `2d9ef69`，成功，ci job 13 秒；O2 有缓存组，另有 5 次重跑见第 7 节 |
+| [#23](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627904510/attempts/1) | PR | 33 秒 | 10-21 23:41，PR #9 `704c037`，成功，ci job 29 秒；O2 无缓存组（cache: false），另有 5 次重跑见第 7 节 |
+| [#24](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39706540218/attempts/1) | PR | 18 秒 | 10-22 09:35，PR #10 `2353dcb`，成功，ci job 15 秒 |
+| [#25](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39713533558/attempts/1) | push | 32 秒 | 10-22 10:50，main `7e413b9`，成功，ci job 29 秒；Package 步骤 11 秒，此前 push 运行只需约 1 秒 |
+| [#26](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39713608095/attempts/1) | push | 33 秒 | 10-22 10:50，main `20da6ee`，成功，ci job 30 秒；Package 步骤 13 秒；问题 3 对其执行了一次重跑（第 2 次尝试） |
+| [#27](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39714274727/attempts/1) | PR | 15 秒 | 10-22 10:58，PR #10 `83c6dde`，成功，ci job 14 秒 |
+
+汇总：PR 运行共 19 次，时长 9～33 秒，中位数 15 秒；push 运行共 8 次，时长 14～44 秒，中位数 20 秒。push 运行多出打包和上传两步，所以略长。
+
+- #1 是唯一一次没有可用缓存的运行，耗时 44 秒。#23 关闭了缓存，耗时 33 秒。
+- #25、#26 的 Package 步骤比之前的 push 运行多出约 10 秒，原因未进一步验证。
+- 两次失败（#3、#9）都在 Test 步骤，分别用时 15 秒和 12 秒就给出了结果。
 
 ## 6. 分析问题
 
@@ -388,30 +432,94 @@ f684cdaf5547ddc34178cb7782504e1b29f326eed850ef61e8dc2cdc3f3bef49  enroll-conflic
 
 **问题 1：gate 的收益与成本。** 两轮演练中，gate 拦住了什么，没有拦住什么？用第 5 节的时间线计算：第一轮因失败多花了多少时间，其中等待 `ci` 的时间和人工修改的时间各占多少？一次 `ci` 大约需要多久，在“提交到发布的间隔”中占多大比例？第二轮补充测试之后，还有哪类问题是测试本身无法发现的？
 
-<填写>
+所用数据：
+
+- **拦住的：** 第一轮 `weeksOverlap` 缺陷由 [ci #3](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100037612) 的 Test 步骤拦住，运行 15 秒；第二轮补测试后，由 [ci #9](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106084105) 拦住。
+- **没拦住的：**
+  - 第二轮只含缺陷时，[ci #8](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106019814) 通过，只剩审批一项未满足。
+  - PR #3 合并时没有清理提交说明（见第 3 节），gate 不检查提交说明。
+  - PR #8 在 PR 中测试的是“#8 合入 `e2b9edb`”的状态，而 main 上实际得到的 `20da6ee` 是“#8 合入 #7 之后”的状态，后者只在合入后由 main 的 ci #26 验证（见问题 2）。
+- **第一轮多花的时间：**
+  - 第一次 ci 结束（13:17:35）到 ci #4 结束（13:20:55），共 3 分 20 秒（200 秒）。
+  - ci #4 于 13:20:38 开始，所以修复推送不晚于 13:20:38；终端记录的推送区间为 13:20:23～13:20:42。
+  - 等待 ci：17～32 秒，占 9%～16%。
+  - 人工修改：13:17:35 到推送之间，2 分 48 秒～3 分 3 秒，占 84%～91%。
+- **一次 ci 的时长：** PR 运行中位数 15 秒，push 运行中位数 20 秒（第 5 节）。
+- **占“提交到发布的间隔”的比例：** 间隔为 8.8～61.9 小时。单次 ci 不到 0.07%（20 秒 ÷ 8.8 小时）。即使把 PR #2 的全部运行（ci #3～#7，共 78 秒）加起来，也只占其 31.7 小时间隔的 0.07%。
+
+结论：gate 拦住的是测试能覆盖的缺陷：两轮演练中，只要有对应的测试，Test 步骤都在约 15 秒内报告失败并阻止合并。没有拦住的是测试覆盖范围之外的东西：第二轮缺陷在补测试之前一路通过，只剩人工审批这一道；提交说明的质量（PR #3）和多个 PR 先后合入后的组合状态（#8 合入后的 `20da6ee`）也都不在检查范围内。第一轮因失败多花约 3 分 20 秒，其中等待 `ci` 只有 17～32 秒（9%～16%），其余 84%～91% 是人工定位和修改，失败的成本主要在人而不在流水线。一次 `ci` 约 15～20 秒，即使把一个 PR 的全部运行加起来，也不到“提交到发布的间隔”的 0.1%；间隔的主体是等待审批（#7、#8 约 11 小时，跨越夜间）和等待发布（#2～#4 约 30 小时，#6 约 61 小时）。因此在本组，自动检查几乎不增加交付时间，真正决定交付速度的是人工审批和发布节奏。第二轮补测试之后，测试仍发现不了“测试和代码按同一个错误理解编写”的问题、没有想到的边界和规则、性能与并发问题，以及只在打 tag 时才运行的发布配置错误；这些要靠评审、main 上的再次验证，或要求合并前先更新到最新 main 来补足。成立条件是：示例很小且没有第三方依赖，`ci` 使用了缓存（无缓存时约 28 秒，见 O2），样本只有两轮演练和 7 个 PR，且组员在课外时间异步协作；在测试耗时更长、PR 更频繁的真实团队中，`ci` 时长和排队所占的比例会明显更高。
 
 **问题 2：PR 中的构建与 main 上的构建。** 在 PR 触发的运行日志中，`github.sha` 与 `pull_request.head.sha` 是否相同？它们能否在 main 的历史中找到？答案与合并方式有关，请写明本组使用的方式。合并之后，main 上这次改动的提交号是哪个？据此说明，为什么待发布的制品只能从 main 上的提交或 tag 构建。
 
-<填写>
+所用数据：本组只允许 squash 合并。以下取自三次 PR 运行日志中 “Print event and revision” 一步的输出；提交是否在 main 历史中，用 `git merge-base --is-ancestor` 判断。
+
+| PR 与运行 | `github.ref` | `github.sha` | `pull_request.head.sha` | squash 后 main 上的提交 |
+|---|---|---|---|---|
+| #2，[ci #3](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100037612) | `refs/pull/2/merge` | `ff2bc18`，父提交为 `ba1c247` 和 `e0bbb94` | `e0bbb94`，父提交为 `ba1c247` | `fdbd649`，父提交为 `ba1c247` |
+| #7，[ci #20](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627154197) | `refs/pull/7/merge` | `d5f1d90`，父提交为 `e2b9edb` 和 `8ca9120` | `8ca9120`，父提交为 `e2b9edb` | `7e413b9`，父提交为 `e2b9edb` |
+| #8，[ci #21](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627305858) | `refs/pull/8/merge` | `44b6ed3`，父提交为 `e2b9edb` 和 `16e58f1` | `16e58f1`，父提交为 `e2b9edb` | `20da6ee`，父提交为 `7e413b9` |
+
+- 每次 PR 运行中，两个值都不同。`github.sha` 是 GitHub 为 PR 生成的临时合并提交，有两个父提交；`head.sha` 是分支上的最后一个提交。
+- 这两个提交都不在 main 的历史中。2026-10-22 从 GitHub 新克隆的小组仓库中，这 6 个提交都取不到，只能通过 GitHub API 查到：PR 分支在合并后已自动删除，临时合并提交也没有被任何分支或 tag 引用。
+- squash 后 main 上的提交号与它们都不同。
+- #7、#8 先后合入，#8 在 PR 中测试的基线是 `e2b9edb`，而 main 上 `20da6ee` 的父提交是 `7e413b9`。规则集没有要求合并前先更新到最新 main，所以 `20da6ee` 这个状态第一次被测试，是合入后的 main push 运行 [ci #26](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39713608095)。
+- PR 运行不执行 Package 和 Upload 两步（`if: github.event_name == 'push'`），不产出制品。
+
+结论：本组只允许 squash 合并。PR 运行中的 `github.sha` 与 `pull_request.head.sha` 不同：前者是 GitHub 为 `refs/pull/N/merge` 生成的临时合并提交，父提交是当时的 main 和分支头，`ci` 测试的就是这份“假如现在合并”的代码；后者是分支上的最后一个提交。两者都不在 main 的历史中：squash 在 main 上另外生成一个只有一个父提交的新提交（如 #7 的 `7e413b9`），分支自动删除后，这些提交不再被任何分支或 tag 引用，新克隆中取不到，`trace.sh` 的“主干”检查也会失败。而且 PR 中测过的状态不一定就是合入后的状态：#8 测的是基于 `e2b9edb` 的 `44b6ed3`，合入后的 `20da6ee` 却基于 `7e413b9`，这个组合只有 main 上的 ci #26 测过。所以如果用 PR 运行构建待发布的制品，制品里的提交号会指向一个 main 上不存在、日后可能被 GitHub 清理的提交，既无法追溯，也不代表 main 上实际的代码。只有 main 上的提交，或指向它的 tag，才是经过 main 的 push 运行验证、能长期找到的源码；本组 `ci` 只在 push 到 main 时打包，release gate 也拒绝不在 main 历史上的 tag，正是出于这个原因。成立条件是使用 squash 合并且合并后删除分支：若改用 merge commit，`head.sha` 会作为第二个父提交进入 main 历史，但 main 上的合并提交仍与 PR 中的临时合并提交不同；若开启“合并前须更新到最新 main”，PR 中测试的状态与合入结果一致，但提交号仍然不同。
 
 **问题 3：可重复构建。** 在本地同一个提交上按下表构建，记录哈希值。④、⑤ 需临时去掉 Makefile 中 tar 的 `--mtime=@0`，完成后用 `git checkout -- Makefile` 恢复，不要提交。
 
 | 构建 | 条件 | 二进制 sha256 | tar.gz sha256 |
 |---|---|---|---|
-| ① | `make package`，`VERSION`、`BUILD_NO`、`RUN_ID`、`COMMIT` 均指定固定值 | <填写> | <填写> |
-| ② | 与 ① 完全相同，再构建一次 | <填写> | <填写> |
-| ③ | 仅将 `BUILD_NO` 换成另一个值 | <填写> | <填写> |
-| ④ | 去掉 `--mtime=@0`，其余同 ① | <填写> | <填写> |
-| ⑤ | 同 ④，间隔几秒后再构建一次 | <填写> | <填写> |
-| Actions | 对 main 上的一次 push 运行执行 Re-run all jobs，比较两次尝试中 package 步骤打印的值 | <两次的值> | <两次的值> |
+构建条件：2026-10-22 在任务 6 的同一台服务器上，从 GitHub 新克隆小组仓库并检出 `v1.0.1`（`20da6ee`），工作区干净。Go 1.26.9 linux/amd64，umask 为 `0002`。固定值为 `VERSION=1.0.1 BUILD_NO=100 RUN_ID=q3-local COMMIT=20da6ee…`，③ 将 `BUILD_NO` 改为 `101`。⑤ 在 ④ 完成 5 秒后构建。④、⑤ 完成后执行 `git checkout -- Makefile`，`git status --porcelain` 无输出。
+
+| 构建 | 条件 | 二进制 sha256 | tar.gz sha256 |
+|---|---|---|---|
+| ① | `make package`，`VERSION`、`BUILD_NO`、`RUN_ID`、`COMMIT` 均指定固定值 | `919d66ff05afdcebb17c330c00bd6f92860b42bc84873fe0d0509982d8eee544` | `a6cdcc16034c280a41ba3394335efea4360e0e7939f391993eed56141fd7cf5a` |
+| ② | 与 ① 完全相同，再构建一次 | `919d66ff05afdcebb17c330c00bd6f92860b42bc84873fe0d0509982d8eee544` | `a6cdcc16034c280a41ba3394335efea4360e0e7939f391993eed56141fd7cf5a` |
+| ③ | 仅将 `BUILD_NO` 换成另一个值 | `37d2e805ca880a3b7af0370f18a4a4bd7ff4c187a3f369a34a2fd70ade2a91f2` | `095d975703d47b0368c466d7fa18ad676bb5a8a654901dcbfc491d84469014fe` |
+| ④ | 去掉 `--mtime=@0`，其余同 ① | `9c30d23388a15eb8988c62cf506bf41f01ea5c5d21ea0902027ad25f4f67aafe` | `6a55164a55024b4d6f53b85216fe615cb3d50e1d04b921c8b771b36908adb48e` |
+| ⑤ | 同 ④，间隔几秒后再构建一次 | `9c30d23388a15eb8988c62cf506bf41f01ea5c5d21ea0902027ad25f4f67aafe` | `30c2c867b748f2cde397c48f739fb77f7d4a063b6468f0734c542058ccb3db2f` |
+| Actions | 对 main 上的一次 push 运行执行 Re-run all jobs，比较两次尝试中 package 步骤打印的值 | [ci #26](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39713608095) 第 [1](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39713608095/attempts/1)、[2](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39713608095/attempts/2) 次尝试均为 `d7b37e6a51fa5fbb49f4aa73da6a42c1ecaa33099f3b1a750a0a92a3bdac9f31` | 两次均为 `62dad40215b1d5851488e3fe7105117eb63a92ce3a487e3173945c17ce060e29` |
+
+补充数据：
+
+- **① 与 ④ 的 vcs 信息：**
+  - ①：`mod enroll-conflict v1.0.1`，`vcs.revision=20da6ee…`，`vcs.time=2026-10-22T02:50:49Z`，`vcs.modified=false`。
+  - ④：`mod enroll-conflict v1.0.1+dirty`，`vcs.modified=true`；`vcs.revision` 和 `vcs.time` 与 ① 相同。
+- **Actions 重跑：** 两次尝试的 `-ldflags` 均为 `-X main.buildNo=26 -X main.runID=39713608095`。重跑不改变 `run_number` 和 `run_id`。
+- **按发布参数在本地重建两个版本：** 在新克隆中分别检出 `v1.0.0`、`v1.0.1`，用 release 当时的 `VERSION`、`BUILD_NO`、`RUN_ID`、`COMMIT` 执行 `make package`。
+
+  | 重建 | 二进制 sha256 | tar.gz sha256 | 与 Release 附件比较 |
+  |---|---|---|---|
+  | v1.0.0，umask `0002` | `f684cdaf…` | `0688facb…` | 二进制相同，tar.gz 不同 |
+  | v1.0.0，umask `0022` | `f684cdaf…` | `d2936cc9…` | 两者都相同 |
+  | v1.0.1，umask `0002` | `99650f31…` | `d2d31579…` | 二进制相同，tar.gz 不同 |
+  | v1.0.1，umask `0022` | `99650f31…` | `d3a5338a…` | 两者都相同 |
+
+  `tar -tvzf` 显示，umask `0002` 时归档中记录的权限为 `rwxrwxr-x`、`rw-rw-r--`，Release 附件中为 `rwxr-xr-x`、`rw-r--r--`。两份 `BUILD_INFO` 内容相同。runner 的 umask 为 `0022`。
+- **在 `git worktree` 中构建：** 同一提交在 `git worktree` 中构建时，`.git` 是文件而不是目录，Go 没有写入任何 vcs 信息（`mod enroll-conflict (devel)`）。此时 ④ 的二进制与 ① 相同，都是 `4cd45060…`。上表因此改在普通克隆中构建。
 
 哪些相同、哪些不同，原因分别是什么？④ 的二进制文件与 ① 是否相同？如果不同，请结合任务 0 中看到的 vcs 信息分析。据此说明制品中应当包含什么、不应包含什么。另外，`release` 在同一个提交上再次编译，而没有直接发布 `ci` 产出的主干制品：为什么这样做？这与 L-05 第 11 页的“一次构建、多处部署”是否冲突，代价是什么？
 
-<填写>
+所用数据：上表与补充数据；任务 0 中只改注释、不提交时，`BUILD_INFO` 不变而二进制哈希改变（第 2 节）；O1 中镜像内的二进制与 Release 附件相同（第 7 节）。
+
+结论：①② 和 Actions 的两次尝试完全相同，因为输入完全相同：同一提交、同一组参数、同一 Go 版本；Makefile 又固定了 `-trimpath`、`CGO_ENABLED=0`，以及 tar 的排序、属主和时间戳；重跑也不改变 `run_number` 和 `run_id`，`-ldflags` 因此不变。③ 两项都变，因为 `BUILD_NO` 经 `-ldflags` 写进了二进制，也写进了 `BUILD_INFO`，这是有意记录的身份信息。④ 的二进制与 ① 不同，原因不在 `--mtime`，而在于改了 Makefile 使工作区变脏，Go 写入了 `vcs.modified=true` 和 `v1.0.1+dirty`，与任务 0 只改注释时相同；④⑤ 的二进制相同而 tar.gz 不同，因为去掉 `--mtime=@0` 后，归档记录了每次构建时文件的修改时间。按发布参数在本地重建两个版本，二进制与 Release 附件逐位相同，tar.gz 却只有在 umask 与 runner 一致（`0022`）时才相同，说明归档还记录了文件权限。据此，制品中应当包含说明“它是什么”的信息：提交号、版本号、构建号、`run_id`、Go 版本和工作区是否干净；不应包含随构建时机和机器偶然变化的信息，如构建时间、文件修改时间、本机的用户、路径和 umask，这些需要时应记在制品之外的运行记录里。`release` 重新编译，是因为版本号要经 `-ldflags` 写进二进制，而 `ci` 的主干制品写的是 `0.0.0-main` 和 `ci` 的构建号，不能直接作为 v1.0.1 发布。这与“一次构建、多处部署”冲突：发布出去的二进制（`99650f31…`）并不是 `ci` 测过的那个文件（`d7b37e6a…`），两者等价只能靠“同一提交加可重复构建”来论证；代价是多一次构建，而且一旦 Go 补丁版本、umask 之类的环境差异破坏了可重复性，这种等价就不成立了。成立条件是 Go 版本固定为 1.26.9、在普通克隆中构建（在 `git worktree` 中 Go 不写 vcs 信息，④ 与 ① 的二进制相同），且环境与 runner 一致；O1 的镜像直接复用 Release 附件，则是“一次构建、多处部署”的做法。
 
 **问题 4：发布与回退。** 假设 v1.0.1 发布后发现缺陷，应当如何处理？为什么不应删除 v1.0.1 的 tag、再用同一版本号重新发布？任务 6 中将服务从 v1.0.1 切换回 v1.0.0 时，使用的是哪个文件，是否需要重新构建？请用两次 `/version` 的输出说明。如果改为从源码重新构建 v1.0.0，得到的文件与原附件是否相同（参考问题 3）？最后，如果有人删除 v1.0.0 的附件，换上一个新文件和对应的新 `.sha256`，`trace.sh` 能否发现？本组在第 4 节记录的值能否发现？可以查阅 GitHub 的 Immutable releases 设置的用途。
 
-<填写>
+所用数据：
+
+- **回退时用的文件：** 两次 `/version` 的输出见第 4 节。回退时运行的是 `v1.0.0` Release 附件中的原二进制文件，SHA-256 为 `f684cdaf…`，与任务 5 记录一致，没有重新构建。v1.0.0 的输出没有 `run_id`，v1.0.1 的有。
+- **从源码重建 v1.0.0：** 见问题 3 的补充数据。二进制与原附件相同；`tar.gz` 只有在 umask 为 `0022` 时才相同。
+- **附件被替换（本地模拟，未改动真实 Release）：** 把 `v1.0.1` 的二进制放进 `v1.0.0` 的包，按 Makefile 的方式重新打包，并生成新的 `.sha256`。
+  - 对这个文件运行 `trace.sh`：第 1 步输出 `enroll-conflict_1.0.0_linux_amd64.tar.gz: OK`，BUILD_INFO 仍显示 `version=1.0.0`、`commit=5c68dd2…`，退出码为 0。
+  - 用第 4 节记录的发布当时的值 `d2936cc9…` 比对：`sha256sum -c` 输出 `FAILED`。
+  - 包内二进制的 SHA-256 为 `99650f31…`，不是 `f684cdaf…`。
+- **`trace.sh` 的校验方式：** 第 1 步只与同目录下的 `.sha256` 比对（`scripts/trace.sh` 的“1. 校验和”一段）。
+- **Immutable releases：** 截至 2026-10-22，GitHub API 返回的 `v1.0.0`、`v1.0.1` 两个 Release 的 `immutable` 字段均为 `false`，仓库未启用 Immutable releases。
+
+结论：v1.0.1 发布后发现缺陷，应先把服务回退到 v1.0.0，即直接运行已发布的旧附件；再通过 PR 修复并合入 main，发布新的修订版本 v1.0.2，同时在 v1.0.1 的 Release 说明中写明问题，v1.0.1 本身不删除、不复用。不能删除 tag 后用同一版本号重新发布，因为 v1.0.1 可能已被下载、部署或缓存（包括 `1.0.1` 镜像），同一个版本号若对应两份内容，第 4 节记录的 sha256、`trace.sh` 和 `/version` 都分不清运行的是哪一份，追溯随之失效。任务 6 回退时运行的是 v1.0.0 Release 附件中的原文件（`f684cdaf…`），没有重新构建；两次 `/version` 分别显示 `1.0.1`、`20da6ee`、构建号 3 和 `1.0.0`、`5c68dd2`、构建号 2，后者也没有 v1.0.1 才加入的 `run_id` 字段，说明回退到的正是旧版本的原文件，整个切换只用了几秒。从源码重新构建 v1.0.0，本组实验中二进制与原附件逐位相同，但 tar.gz 只有在 umask 与 runner 一致时才相同；而且这要求 Go 版本、构建参数乃至 `run_id` 全部与当时一致，所以回退应当使用原附件，而不是现场重建。如果有人删掉 v1.0.0 的附件，换上新文件和对应的新 `.sha256`，`trace.sh` 发现不了，因为它只与同目录的 `.sha256` 比对，本地模拟中它照常输出 OK、退出码为 0；而用第 4 节记录的发布当时的值 `d2936cc9…` 比对，会立即失败。本组两个 Release 目前 `immutable` 均为 `false`；启用 Immutable releases 后，Release 发布后附件和 tag 都不能再修改或删除，能从平台层面阻止这种替换和对版本号的复用。成立条件是：第 4 节的记录保存在受保护的 main 历史中，没有被一起篡改；并且服务是无状态的，若新版本改了数据格式或数据库结构，回退时还要考虑数据兼容性。
 
 ## 7. 选做记录
 
