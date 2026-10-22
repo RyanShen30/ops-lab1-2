@@ -64,3 +64,45 @@ jobs:
             --title "$GITHUB_REF_NAME" \
             --generate-notes \
             dist/*.tar.gz dist/*.tar.gz.sha256
+
+  # 选做 O1：用刚发布的 Release 附件构建镜像，镜像中不重新编译。
+  # release job 用 GITHUB_TOKEN 创建 Release，这类事件不会再触发新的工作流运行，
+  # 所以镜像只能作为同一工作流里的后续 job 构建。
+  image:
+    needs: release
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Download and verify release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pkg="enroll-conflict_${GITHUB_REF_NAME#v}_linux_amd64"
+          gh release download "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --dir dist \
+            --pattern "$pkg.tar.gz" --pattern "$pkg.tar.gz.sha256"
+          (cd dist && sha256sum -c "$pkg.tar.gz.sha256")
+          tar -xzf "dist/$pkg.tar.gz" -C dist
+          cat "dist/$pkg/BUILD_INFO"
+          sha256sum "dist/$pkg/enroll-conflict"
+
+      - name: Build and push image
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          image="ghcr.io/${GITHUB_REPOSITORY,,}:$version"
+          printf '%s\n' "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          docker build -f Dockerfile \
+            --build-arg VERSION="$version" \
+            --build-arg COMMIT="$GITHUB_SHA" \
+            --build-arg SOURCE="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+            -t "$image" "dist/enroll-conflict_${version}_linux_amd64"
+          docker push "$image"
+          digest=$(docker image inspect --format '{{index .RepoDigests 0}}' "$image")
+          echo "image digest: $digest"
+          echo "镜像：\`$digest\`" >> "$GITHUB_STEP_SUMMARY"
