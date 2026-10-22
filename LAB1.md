@@ -1,4 +1,4 @@
-# 实验 1 记录：第 <组号> 组
+# 实验 1 记录：第 2 组
 
 现场检查时将打开本文件，按其中的链接核对。证据一律以链接或文本形式给出，不要只贴截图。将 `<填写>` 替换为本组的内容。main 受保护之后，修改本文件也须通过 PR。
 
@@ -6,7 +6,7 @@
 
 | 项 | 内容 |
 |---|---|
-| 小组 | 第 <组号> 组 |
+| 小组 | 第 2 组 |
 | 仓库地址 | [RyanShen30/ops-lab1-2](https://github.com/RyanShen30/ops-lab1-2) |
 | 代码载体 | 统一示例 `enroll-conflict`（Go） |
 | runner 与语言版本 | `ubuntu-24.04`，Go `1.26.9` |
@@ -123,12 +123,12 @@ BUILD_INFO 没有变化
 | 规则集里启用的规则 | [main-gate](https://github.com/RyanShen30/ops-lab1-2/rules/25238784)，状态为 Active，作用于默认分支 `main`，Bypass list 为空。启用 `Restrict deletions`、`Block force pushes`、`Require a pull request before merging`（Required approvals = **1**）、`Require status checks to pass`（必需检查为 **`ci`**，来源为 GitHub Actions）。允许的合并方式仅为 **Squash**。 |
 | 组长直接 `git push origin main` 被拒的终端输出 | 见下方“任务 3：直接推送被拒记录”的完整实际输出；GitHub 返回 `GH013`，指出必须通过 PR 且缺少必需的 `ci` 检查。 |
 | 第一轮：失败的 PR 运行 | [PR #2](https://github.com/RyanShen30/ops-lab1-2/pull/2) 的 [ci #3](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100037612)，`Test` 步骤失败。 |
-| 第一轮：修复后通过的 PR 运行 | [ci #4](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100223291) 通过；随后清理临时注释的 [ci #5](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100712651) 也通过。 |
+| 第一轮：修复后通过的 PR 运行 | [ci #4](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100223291) 通过；随后清理临时注释的 [ci #5](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100712651)、补充实验记录的 [ci #6](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39101086698) 也通过。 |
 | 第一轮：合入 main 后的运行（含制品） | [ci #7](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39105597138)，事件为 push，分支 main，结果 success；Package 和 Upload 均成功，产出 build-7-attempt-1 制品。 |
 | 第二轮：找到的缺陷，以及现有测试为何无法发现它 | 将 Valid 中拒绝 End < Start 改为拒绝 End <= Start，导致起止节次相同的合法单节课程被拒绝。Section 注释规定起止节次均包含；原有合法用例仅覆盖 Start < End，缺少 Start == End 的边界测试。 |
 | 第二轮：仅含缺陷时仍然通过的运行 | [PR #3](https://github.com/RyanShen30/ops-lab1-2/pull/3) 的 [ci #8](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106019814)，success；仅含缺陷提交 d1e21a4，未审批、未合并。 |
 | 第二轮：补测试后失败的运行 | [ci #9](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106084105)，Test 步骤失败，新增 TestValidSinglePeriod 在 all、odd、even 三种周次下均发现缺陷。 |
-| 第二轮：撤销缺陷后通过的运行 | [ci #10](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106121523)，success；通过 git revert d1e21a4 撤销缺陷，保留新增测试。 |
+| 第二轮：撤销缺陷后通过的运行 | [ci #10](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106121523)，success；通过 git revert d1e21a4 撤销缺陷，保留新增测试。随后补充实验记录的 [ci #11](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106167982) 也通过。 |
 | 第二轮：审批与合入 main 后的运行 | [PR #3 审批](https://github.com/RyanShen30/ops-lab1-2/pull/3#pullrequestreview-5561903762)；2026-10-18 15:14:54 +08:00 squash 合入；[ci #12](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106946423) 全部成功并产出制品。 |
 | 未合入分支上的 tag 被 release gate 拒绝的运行 | [release #1](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39197867811)，测试 tag `v0.0.1` 指向未合入 main 的提交，`Release gate` 步骤失败，后续步骤跳过；测试 tag 和分支已清理，未生成 Release。 |
 | Release v1.0.0 | [v1.0.0](https://github.com/RyanShen30/ops-lab1-2/releases/tag/v1.0.0)，由 [release #2](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39255772440) 成功发布；两个附件已下载，校验和及追溯检查均通过，实际值见第 4 节。 |
@@ -390,8 +390,10 @@ f684cdaf5547ddc34178cb7782504e1b29f326eed850ef61e8dc2cdc3f3bef49  enroll-conflic
 
 `ci` 工作流的运行时长（从 Actions 页面读取），至少 5 次，全部列出，不要只给出平均值：
 
-“时长”取第 1 次尝试的 `run_started_at` 到 `updated_at`，与 Actions 页面的运行时长一致；备注中另列 `ci` job 本身的时长。开始时间为 +08:00。下表列出截至 2026-10-22 的全部 27 次运行。
+“时长”按第 1 次尝试的 `run_started_at` 到 `updated_at` 计算，备注中另列 `ci` job 本身的时长。开始时间为 +08:00。下表采用 ci #1～#27 的首次尝试作为固定样本，统计截止时间为 2026-10-22 10:58:33 +08:00；后续运行不计入本表。O2 的重跑另列于第 7 节，ci #26 的第二次尝试见问题 3。
 
+| 运行 | 事件 | 时长 | 备注 |
+|---|---|---|---|
 | [#1](https://github.com/RyanShen30/ops-lab1-2/actions/runs/38877464989/attempts/1) | push | 44 秒 | 10-16 17:00，main `ba1c247`，成功，ci job 40 秒；main 上第一次运行，缓存未命中，运行结束时保存缓存 |
 | [#2](https://github.com/RyanShen30/ops-lab1-2/actions/runs/38902466874/attempts/1) | PR | 28 秒 | 10-16 20:42，PR #1 `8ed1465`，成功，ci job 25 秒 |
 | [#3](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100037612/attempts/1) | PR | 15 秒 | 10-18 13:17，PR #2 `e0bbb94`，失败，ci job 12 秒；第一轮演练，Test 失败 |
@@ -460,17 +462,15 @@ f684cdaf5547ddc34178cb7782504e1b29f326eed850ef61e8dc2cdc3f3bef49  enroll-conflic
 | #8，[ci #21](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627305858) | `refs/pull/8/merge` | `44b6ed3`，父提交为 `e2b9edb` 和 `16e58f1` | `16e58f1`，父提交为 `e2b9edb` | `20da6ee`，父提交为 `7e413b9` |
 
 - 每次 PR 运行中，两个值都不同。`github.sha` 是 GitHub 为 PR 生成的临时合并提交，有两个父提交；`head.sha` 是分支上的最后一个提交。
-- 这两个提交都不在 main 的历史中。2026-10-22 从 GitHub 新克隆的小组仓库中，这 6 个提交都取不到，只能通过 GitHub API 查到：PR 分支在合并后已自动删除，临时合并提交也没有被任何分支或 tag 引用。
+- 这两个提交都不在 main 的历史中。普通克隆默认不拉取 `refs/pull/*`；PR 分支删除后，仍可通过 PR 引用查询分支提交，或通过 GitHub API 查询相关提交。因此，普通克隆中没有这些提交，不等于它们无法追溯；但提交仍可查询，也不等于它属于 main 历史。
 - squash 后 main 上的提交号与它们都不同。
 - #7、#8 先后合入，#8 在 PR 中测试的基线是 `e2b9edb`，而 main 上 `20da6ee` 的父提交是 `7e413b9`。规则集没有要求合并前先更新到最新 main，所以 `20da6ee` 这个状态第一次被测试，是合入后的 main push 运行 [ci #26](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39713608095)。
 - PR 运行不执行 Package 和 Upload 两步（`if: github.event_name == 'push'`），不产出制品。
 
-结论：本组只允许 squash 合并。PR 运行中的 `github.sha` 与 `pull_request.head.sha` 不同：前者是 GitHub 为 `refs/pull/N/merge` 生成的临时合并提交，父提交是当时的 main 和分支头，`ci` 测试的就是这份“假如现在合并”的代码；后者是分支上的最后一个提交。两者都不在 main 的历史中：squash 在 main 上另外生成一个只有一个父提交的新提交（如 #7 的 `7e413b9`），分支自动删除后，这些提交不再被任何分支或 tag 引用，新克隆中取不到，`trace.sh` 的“主干”检查也会失败。而且 PR 中测过的状态不一定就是合入后的状态：#8 测的是基于 `e2b9edb` 的 `44b6ed3`，合入后的 `20da6ee` 却基于 `7e413b9`，这个组合只有 main 上的 ci #26 测过。所以如果用 PR 运行构建待发布的制品，制品里的提交号会指向一个 main 上不存在、日后可能被 GitHub 清理的提交，既无法追溯，也不代表 main 上实际的代码。只有 main 上的提交，或指向它的 tag，才是经过 main 的 push 运行验证、能长期找到的源码；本组 `ci` 只在 push 到 main 时打包，release gate 也拒绝不在 main 历史上的 tag，正是出于这个原因。成立条件是使用 squash 合并且合并后删除分支：若改用 merge commit，`head.sha` 会作为第二个父提交进入 main 历史，但 main 上的合并提交仍与 PR 中的临时合并提交不同；若开启“合并前须更新到最新 main”，PR 中测试的状态与合入结果一致，但提交号仍然不同。
+结论：本组只允许 squash 合并。PR 运行中的 `github.sha` 与 `pull_request.head.sha` 不同：前者是 GitHub 为 `refs/pull/N/merge` 生成的临时合并提交，父提交是当时的 main 和分支头，`ci` 测试的就是这份“假如现在合并”的代码；后者是分支上的最后一个提交。两者都不在 main 的历史中：squash 在 main 上另外生成一个只有一个父提交的新提交（如 #7 的 `7e413b9`），普通克隆默认不拉取 PR 引用，分支删除后仍可经 PR 引用或 GitHub API 查询相关提交；`trace.sh` 的“主干”检查会因它们不属于 main 历史而失败。而且 PR 中测过的状态不一定就是合入后的状态：#8 测的是基于 `e2b9edb` 的 `44b6ed3`，合入后的 `20da6ee` 却基于 `7e413b9`，这个组合只有 main 上的 ci #26 测过。所以如果用 PR 运行构建待发布的制品，制品里的提交号会指向一个不属于 main 历史的提交，即使它仍可查询，也无法通过 `trace.sh` 的主干检查，而且不一定代表 main 上实际合入的代码。本实验选择经 main 的 push 运行验证的主干提交或指向它的 tag 作为发布来源；本组 `ci` 只在 push 到 main 时打包，release gate 也拒绝不在 main 历史上的 tag，正是出于这个原因。上述主干归属结论以本组使用 squash 合并为条件，分支是否删除不改变提交的祖先关系：若改用 merge commit，`head.sha` 会作为第二个父提交进入 main 历史，但 main 上的合并提交仍与 PR 中的临时合并提交不同；若开启“合并前须更新到最新 main”，PR 中测试的状态与合入结果一致，但提交号仍然不同。
 
 **问题 3：可重复构建。** 在本地同一个提交上按下表构建，记录哈希值。④、⑤ 需临时去掉 Makefile 中 tar 的 `--mtime=@0`，完成后用 `git checkout -- Makefile` 恢复，不要提交。
 
-| 构建 | 条件 | 二进制 sha256 | tar.gz sha256 |
-|---|---|---|---|
 构建条件：2026-10-22 在任务 6 的同一台服务器上，从 GitHub 新克隆小组仓库并检出 `v1.0.1`（`20da6ee`），工作区干净。Go 1.26.9 linux/amd64，umask 为 `0002`。固定值为 `VERSION=1.0.1 BUILD_NO=100 RUN_ID=q3-local COMMIT=20da6ee…`，③ 将 `BUILD_NO` 改为 `101`。⑤ 在 ④ 完成 5 秒后构建。④、⑤ 完成后执行 `git checkout -- Makefile`，`git status --porcelain` 无输出。
 
 | 构建 | 条件 | 二进制 sha256 | tar.gz sha256 |
@@ -519,7 +519,7 @@ f684cdaf5547ddc34178cb7782504e1b29f326eed850ef61e8dc2cdc3f3bef49  enroll-conflic
 - **`trace.sh` 的校验方式：** 第 1 步只与同目录下的 `.sha256` 比对（`scripts/trace.sh` 的“1. 校验和”一段）。
 - **Immutable releases：** 截至 2026-10-22，GitHub API 返回的 `v1.0.0`、`v1.0.1` 两个 Release 的 `immutable` 字段均为 `false`，仓库未启用 Immutable releases。
 
-结论：v1.0.1 发布后发现缺陷，应先把服务回退到 v1.0.0，即直接运行已发布的旧附件；再通过 PR 修复并合入 main，发布新的修订版本 v1.0.2，同时在 v1.0.1 的 Release 说明中写明问题，v1.0.1 本身不删除、不复用。不能删除 tag 后用同一版本号重新发布，因为 v1.0.1 可能已被下载、部署或缓存（包括 `1.0.1` 镜像），同一个版本号若对应两份内容，第 4 节记录的 sha256、`trace.sh` 和 `/version` 都分不清运行的是哪一份，追溯随之失效。任务 6 回退时运行的是 v1.0.0 Release 附件中的原文件（`f684cdaf…`），没有重新构建；两次 `/version` 分别显示 `1.0.1`、`20da6ee`、构建号 3 和 `1.0.0`、`5c68dd2`、构建号 2，后者也没有 v1.0.1 才加入的 `run_id` 字段，说明回退到的正是旧版本的原文件，整个切换只用了几秒。从源码重新构建 v1.0.0，本组实验中二进制与原附件逐位相同，但 tar.gz 只有在 umask 与 runner 一致时才相同；而且这要求 Go 版本、构建参数乃至 `run_id` 全部与当时一致，所以回退应当使用原附件，而不是现场重建。如果有人删掉 v1.0.0 的附件，换上新文件和对应的新 `.sha256`，`trace.sh` 发现不了，因为它只与同目录的 `.sha256` 比对，本地模拟中它照常输出 OK、退出码为 0；而用第 4 节记录的发布当时的值 `d2936cc9…` 比对，会立即失败。本组两个 Release 目前 `immutable` 均为 `false`；启用 Immutable releases 后，Release 发布后附件和 tag 都不能再修改或删除，能从平台层面阻止这种替换和对版本号的复用。成立条件是：第 4 节的记录保存在受保护的 main 历史中，没有被一起篡改；并且服务是无状态的，若新版本改了数据格式或数据库结构，回退时还要考虑数据兼容性。
+结论：v1.0.1 发布后发现缺陷，应先把服务回退到 v1.0.0，即直接运行已发布的旧附件；再通过 PR 修复并合入 main，发布新的修订版本 v1.0.2，同时在 v1.0.1 的 Release 说明中写明问题，v1.0.1 本身不删除、不复用。不能删除 tag 后用同一版本号重新发布，因为 v1.0.1 可能已被下载、部署或缓存（包括 `1.0.1` 镜像），同一个版本号若对应两份内容，仅凭版本号就不能唯一确定制品；如果附件及其配套的 `.sha256` 被同时替换，`trace.sh` 也可能仍然校验通过，但与第 4 节可信、未被篡改的发布时原始 SHA256 比较，就能发现附件内容发生了变化。任务 6 回退时运行的是 v1.0.0 Release 附件中的原文件（`f684cdaf…`），没有重新构建；两次 `/version` 分别显示 `1.0.1`、`20da6ee`、构建号 3 和 `1.0.0`、`5c68dd2`、构建号 2，后者也没有 v1.0.1 才加入的 `run_id` 字段，说明回退到的正是旧版本的原文件，整个切换只用了几秒。从源码重新构建 v1.0.0，本组实验中二进制与原附件逐位相同，但 tar.gz 只有在 umask 与 runner 一致时才相同；而且这要求 Go 版本、构建参数乃至 `run_id` 全部与当时一致，所以回退应当使用原附件，而不是现场重建。如果有人删掉 v1.0.0 的附件，换上新文件和对应的新 `.sha256`，`trace.sh` 发现不了，因为它只与同目录的 `.sha256` 比对，本地模拟中它照常输出 OK、退出码为 0；而用第 4 节记录的发布当时的值 `d2936cc9…` 比对，会立即失败。本组两个 Release 目前 `immutable` 均为 `false`；启用 Immutable releases 后，Release 发布后附件和 tag 都不能再修改或删除，能从平台层面阻止这种替换和对版本号的复用。成立条件是：第 4 节的记录保存在受保护的 main 历史中，没有被一起篡改；并且服务是无状态的，若新版本改了数据格式或数据库结构，回退时还要考虑数据兼容性。
 
 ## 7. 选做记录
 
