@@ -13,7 +13,7 @@
 | 方法与路径 | 作用 |
 |---|---|
 | `GET /healthz` | 存活检查，返回 `ok` |
-| `GET /version` | 返回版本号、提交号、构建号、Go 版本（JSON） |
+| `GET /version` | 返回版本号、提交号、构建号、运行号 `run_id`、Go 版本（JSON） |
 | `POST /api/conflict` | 请求体 `{"a": 教学班, "b": 教学班}`，返回 `{"conflict": true/false}` |
 
 教学班的字段：`id`、`weekday`（1～7）、`start`、`end`（节次，含）、`weeks`。
