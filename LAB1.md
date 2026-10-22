@@ -132,7 +132,7 @@ BUILD_INFO 没有变化
 | 第二轮：审批与合入 main 后的运行 | [PR #3 审批](https://github.com/RyanShen30/ops-lab1-2/pull/3#pullrequestreview-5561903762)；2026-10-18 15:14:54 +08:00 squash 合入；[ci #12](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39106946423) 全部成功并产出制品。 |
 | 未合入分支上的 tag 被 release gate 拒绝的运行 | [release #1](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39197867811)，测试 tag `v0.0.1` 指向未合入 main 的提交，`Release gate` 步骤失败，后续步骤跳过；测试 tag 和分支已清理，未生成 Release。 |
 | Release v1.0.0 | [v1.0.0](https://github.com/RyanShen30/ops-lab1-2/releases/tag/v1.0.0)，由 [release #2](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39255772440) 成功发布；两个附件已下载，校验和及追溯检查均通过，实际值见第 4 节。 |
-| Release v1.0.1 | <链接> |
+| Release v1.0.1 | [v1.0.1](https://github.com/RyanShen30/ops-lab1-2/releases/tag/v1.0.1)，由 [release #3](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39713717369) 成功发布；两个附件已下载，校验和与追溯均通过，实际值见第 4 节。 |
 
 ### 任务 3：直接推送被拒记录
 
@@ -240,24 +240,50 @@ scripts/trace.sh dist/release/enroll-conflict_1.0.0_linux_amd64.tar.gz . origin/
 enroll-conflict version=1.0.0 commit=5c68dd213a4389cf51500b43be2729ecc880a22e build_no=2 go=go1.26.9
 ```
 
-以上完成任务 5 的发布与校验取证，作为任务 6 的旧版本对照基线；任务 6 的 `v1.0.1` 发布、服务运行及回退尚未执行。
+以上完成任务 5 的发布与校验取证，作为任务 6 的旧版本对照基线。
+
+### 任务 6：v1.0.1 的发布
+
+负责人：`Shundi-Wu`。本次发布包含两个 PR，均由 Shundi-Wu 发起，由 RyanShen30 审批并 squash 合入。所有时间均为 Asia/Shanghai（UTC+08:00）。
+
+| PR | 内容 | PR 上的 ci | 审批 | 合入与提交 | 合入后 main 的 ci |
+|---|---|---|---|---|---|
+| [#7](https://github.com/RyanShen30/ops-lab1-2/pull/7) | 任务 6 的小改动：`/version` 与 `-version` 增加 `run_id`，Makefile 通过 `-ldflags` 注入 `RUN_ID` | [ci #20](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627154197) | [2026-10-22 10:49:43](https://github.com/RyanShen30/ops-lab1-2/pull/7#pullrequestreview-5608701517) | 10:50:02，`7e413b9` | [ci #25](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39713533558) |
+| [#8](https://github.com/RyanShen30/ops-lab1-2/pull/8) | 选做 O1：`release.yml` 增加 `image` job，见第 7 节 | [ci #21](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39627305858) | [2026-10-22 10:50:27](https://github.com/RyanShen30/ops-lab1-2/pull/8#pullrequestreview-5608705542) | 10:50:49，`20da6ee` | [ci #26](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39713608095) |
+
+改动 #7 的原因见第 4 节：`build_no` 在 `ci` 和 `release` 中各自计数，运行中的服务原先只能报出构建号，无法确定是哪次运行。
+
+合入顺序为先 #7、后 #8，main 的最新提交是 #8 的 `20da6ee`。tag 只能打在已经包含 `image` job 的提交上，所以 `v1.0.1` 打在 `20da6ee`，`trace.sh` 追溯到的 PR 是 #8。`git log --oneline v1.0.0..v1.0.1` 显示本版本相对 `v1.0.0` 新增 #6、#7、#8 三个提交。
+
+两个 PR 一起合入后的状态，此前没有在 CI 上一起运行过，因此先等 ci #26 通过，再执行 `git switch main && git pull`、`git tag -a v1.0.1 -m "v1.0.1"` 和 `git push origin v1.0.1`。tag 于 10:52 推送，触发 [release #3](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39713717369)：
+
+- [release job](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39713717369/job/119610787927)（10:52:08～10:52:36）：门禁、检查、测试、打包和校验全部通过，于 10:52:33 发布 `v1.0.1`。
+- [image job](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39713717369/job/119610931604)（10:52:38～10:52:49）：成功推送镜像。
+
+release job 打包日志中，二进制文件的 SHA-256 为 `99650f311d8fd045d33410c8cfd83ccd24a98e19018abffff474fde268637066`，`tar.gz` 的为 `d3a5338aac14b58e4e9e45a97531437694e78230e5d925da86246deae8b3a20c`。
 
 ## 4. 追溯与运行
 
-`v1.0.0` 的任务 5 发布基线与实际追溯输出如下；`v1.0.1` 及回退验证由任务 6 补齐。
+`v1.0.0` 的任务 5 发布基线与实际追溯输出如下。任务 6 在与任务 0 相同的服务器上操作，使用 `wsd` 账户下的小组仓库克隆 `/home/wsd/projects/ops-lab1-2`。按指导书命令用 `curl` 匿名下载两个版本的附件到 `dist/release/`，2026-10-22 10:53:27 +08:00 下载完成。
 
 | 项 | v1.0.0 | v1.0.1 |
 |---|---|---|
-| 版本号 | `1.0.0` | <填写> |
-| 构建号 | `2`（`release` 工作流） | <填写> |
-| 提交号（SHA） | `5c68dd213a4389cf51500b43be2729ecc880a22e` | <填写> |
-| 引入该提交的 PR | [#5](https://github.com/RyanShen30/ops-lab1-2/pull/5) | <编号与链接> |
-| 构建它的 Actions 运行（`trace.sh` 给出的链接） | [release #2，run_id=39255772440](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39255772440) | <链接> |
-| 制品 sha256（发布当时，取自 Release 里的 .sha256） | `d2936cc91dc6afbaaf90279f6501aedf7edb64770c7c0e64865c7589d8d3c415` | <填写> |
+| 版本号 | `1.0.0` | `1.0.1` |
+| 构建号 | `2`（`release` 工作流） | `3`（`release` 工作流） |
+| 提交号（SHA） | `5c68dd213a4389cf51500b43be2729ecc880a22e` | `20da6eed62da2492360d72559b1fae6040cde7c8` |
+| 引入该提交的 PR | [#5](https://github.com/RyanShen30/ops-lab1-2/pull/5) | [#8](https://github.com/RyanShen30/ops-lab1-2/pull/8)；本版本还包含任务 6 的改动 [#7](https://github.com/RyanShen30/ops-lab1-2/pull/7) |
+| 构建它的 Actions 运行（`trace.sh` 给出的链接） | [release #2，run_id=39255772440](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39255772440) | [release #3，run_id=39713717369](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39713717369) |
+| 制品 sha256（发布当时，取自 Release 里的 .sha256） | `d2936cc91dc6afbaaf90279f6501aedf7edb64770c7c0e64865c7589d8d3c415` | `d3a5338aac14b58e4e9e45a97531437694e78230e5d925da86246deae8b3a20c` |
 
-仅凭构建号不能唯一确定运行。`v1.0.0` 的构建号为 `2`：在 `ci` 中对应 [ci #2](https://github.com/RyanShen30/ops-lab1-2/actions/runs/38902466874)，它是 PR 事件，提交号为 `8ed1465a9357c4817964229622a9ecc849fc42dd`；在 `release` 中对应上述 [release #2](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39255772440)，它才构建了 `v1.0.0`。两条工作流各自编号，`BUILD_INFO` 的 `run_id=39255772440` 才能直接确定本次发布运行。
+仅凭构建号不能唯一确定运行。`v1.0.0` 的构建号为 `2`：在 `ci` 中对应 [ci #2](https://github.com/RyanShen30/ops-lab1-2/actions/runs/38902466874)，它是 PR 事件，提交号为 `8ed1465a9357c4817964229622a9ecc849fc42dd`；在 `release` 中对应上述 [release #2](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39255772440)，它才构建了 `v1.0.0`。两条工作流各自编号，`BUILD_INFO` 的 `run_id=39255772440` 才能直接确定本次发布运行。`v1.0.1` 的构建号 `3` 同样重号：[ci #3](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39100037612) 是任务 4 第一轮中失败的 PR 运行，release #3 才是本次发布。
 
-发布 v1.0.1 之后重新下载 v1.0.0 的附件，计算得到的 sha256：<填写>。与上表中发布当时的值是否一致？<填写>
+发布 v1.0.1 之后重新下载 v1.0.0 的附件，计算得到的 sha256：`d2936cc91dc6afbaaf90279f6501aedf7edb64770c7c0e64865c7589d8d3c415`。与上表中发布当时的值是否一致？一致。解压后，`v1.0.0` 二进制文件的 SHA-256 仍为任务 5 记录的 `f684cdaf5547ddc34178cb7782504e1b29f326eed850ef61e8dc2cdc3f3bef49`。
+
+```text
+$ sha256sum dist/release/*.tar.gz
+d2936cc91dc6afbaaf90279f6501aedf7edb64770c7c0e64865c7589d8d3c415  dist/release/enroll-conflict_1.0.0_linux_amd64.tar.gz
+d3a5338aac14b58e4e9e45a97531437694e78230e5d925da86246deae8b3a20c  dist/release/enroll-conflict_1.0.1_linux_amd64.tar.gz
+```
 
 `trace.sh` 输出（v1.0.0）：
 
@@ -282,18 +308,48 @@ go=go1.26.9
 构建它的运行: https://github.com/RyanShen30/ops-lab1-2/actions/runs/39255772440
 ```
 
-`trace.sh` 输出（v1.0.1）：
+`trace.sh` 输出（v1.0.1），退出码为 **0**：
 
 ```text
-<粘贴>
+== 1. 校验和
+enroll-conflict_1.0.1_linux_amd64.tar.gz: OK
+== 2. 制品里的 BUILD_INFO
+name=enroll-conflict
+version=1.0.1
+build_no=3
+run_id=39713717369
+commit=20da6eed62da2492360d72559b1fae6040cde7c8
+go=go1.26.9
+== 3. 提交 20da6eed62da2492360d72559b1fae6040cde7c8
+作者: Shundi Wu <wushundi0515@gmail.com>
+时间: 2026-10-22T10:50:49+08:00
+标题: ci: 发布后用 Release 附件构建并推送容器镜像 (#8)
+主干: 该提交在 origin/main 的历史上
+指向它的 tag: v1.0.1
+版本号: 1.0.1    构建号: 3
+提交页面（含关联的 PR）: https://github.com/RyanShen30/ops-lab1-2/commit/20da6eed62da2492360d72559b1fae6040cde7c8
+构建它的运行: https://github.com/RyanShen30/ops-lab1-2/actions/runs/39713717369
 ```
 
-任务 6 第 4 步，两次 `/version` 的输出：
+同一次操作中，对 `v1.0.0` 重新运行 `trace.sh`，输出与上方任务 5 时的记录相同，退出码也为 0。
+
+任务 6 第 4 步，两次 `/version` 的输出。按指导书命令在 `dist/release` 中解压两个附件，先运行 v1.0.1，停止后换回 v1.0.0；`#` 开头的行是记录时间的注释：
 
 ```text
-<运行 v1.0.1 时>
-<换回 v1.0.0 后>
+# 2026-10-22 10:53:46 +0800 启动 v1.0.1
+{"version":"1.0.1","commit":"20da6eed62da2492360d72559b1fae6040cde7c8","build_no":"3","run_id":"39713717369","go":"go1.26.9"}
+# 2026-10-22 10:53:47 +0800 停止 v1.0.1，回退到 v1.0.0
+{"version":"1.0.0","commit":"5c68dd213a4389cf51500b43be2729ecc880a22e","build_no":"2","go":"go1.26.9"}
 ```
+
+回退时直接运行 `v1.0.0` Release 附件中的原二进制文件，没有重新构建。两个二进制文件的 SHA-256 如下，其中 `v1.0.0` 的值与任务 5 的记录一致：
+
+```text
+f684cdaf5547ddc34178cb7782504e1b29f326eed850ef61e8dc2cdc3f3bef49  enroll-conflict_1.0.0_linux_amd64/enroll-conflict
+99650f311d8fd045d33410c8cfd83ccd24a98e19018abffff474fde268637066  enroll-conflict_1.0.1_linux_amd64/enroll-conflict
+```
+
+`v1.0.0` 的输出没有 `run_id` 字段，因为这个字段是 #7 才加入的，这也说明回退后运行的确实是旧版本的文件。两个服务均已用 `kill` 停止，`pgrep -a enroll-conflict` 无输出。
 
 ## 5. 数据
 
@@ -361,9 +417,49 @@ go=go1.26.9
 
 | 选做 | 完成情况与证据 |
 |---|---|
-| O1 容器镜像 | <未做 / 链接、镜像摘要（digest）、运行容器的主机架构> |
+| O1 容器镜像 | 已完成。[PR #8](https://github.com/RyanShen30/ops-lab1-2/pull/8) 增加 `image` job，`v1.0.1` 由 [image job](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39713717369/job/119610931604) 推送镜像，摘要为 `sha256:9898a0e1aabd30feaa871573a61b4272f89c8291ea5c829fe93fabf465c8e6d1`。运行容器的主机为 `x86_64`（linux/amd64），可匿名拉取，详见下方“选做 O1”。 |
 | O2 缓存对反馈时间的影响 | 已完成。实验 [PR #9](https://github.com/RyanShen30/ops-lab1-2/pull/9) 不合并；预期、全部 12 次运行与结论见下方“选做 O2”。 |
 | O3 迁移到小组项目 | 未做 |
+
+### 选做 O1：容器镜像
+
+**工作流。** [PR #8](https://github.com/RyanShen30/ops-lab1-2/pull/8) 在 `release.yml` 中新增 `image` job（`needs: release`）。权限只在该 job 内声明为 `contents: read` 和 `packages: write`，步骤如下：
+
+1. 用 `gh release download` 下载本次 Release 的 `tar.gz` 和 `.sha256`，执行 `sha256sum -c` 后解压。
+2. 以解压后的制品目录为构建上下文，用仓库中的 `Dockerfile` 构建镜像。镜像中不重新编译，放入的就是 Release 附件里的二进制文件和 `BUILD_INFO`。
+3. 推送到 `ghcr.io/${GITHUB_REPOSITORY,,}:<版本号>`，并在日志中打印摘要。
+
+**v1.0.1 的镜像。** [image job](https://github.com/RyanShen30/ops-lab1-2/actions/runs/39713717369/job/119610931604) 校验附件输出 `enroll-conflict_1.0.1_linux_amd64.tar.gz: OK`，推送日志为 `1.0.1: digest: sha256:9898a0e1aabd30feaa871573a61b4272f89c8291ea5c829fe93fabf465c8e6d1 size: 735`。镜像即 [ghcr.io/ryanshen30/ops-lab1-2](https://github.com/users/RyanShen30/packages/container/package/ops-lab1-2)，按摘要引用为：
+
+```text
+ghcr.io/ryanshen30/ops-lab1-2@sha256:9898a0e1aabd30feaa871573a61b4272f89c8291ea5c829fe93fabf465c8e6d1
+```
+
+**匿名拉取与按摘要运行。** 2026-10-22 在任务 6 的同一台服务器上操作。该机 root 的 Docker 没有登录任何 registry，以下拉取均为匿名；另外向 `ghcr.io/token` 匿名申请 pull token 后请求该摘要的 manifest，返回 HTTP 200。实际输出：
+
+```text
+$ uname -m; docker info 架构
+x86_64
+x86_64 linux Docker 29.8.2
+$ docker pull ghcr.io/ryanshen30/ops-lab1-2@sha256:9898a0e1aabd30feaa871573a61b4272f89c8291ea5c829fe93fabf465c8e6d1
+ghcr.io/ryanshen30/ops-lab1-2@sha256:9898a0e1aabd30feaa871573a61b4272f89c8291ea5c829fe93fabf465c8e6d1
+$ docker image inspect
+linux/amd64 RepoDigests=[ghcr.io/ryanshen30/ops-lab1-2@sha256:9898a0e1aabd30feaa871573a61b4272f89c8291ea5c829fe93fabf465c8e6d1] labels: version=1.0.1 revision=20da6eed62da2492360d72559b1fae6040cde7c8 source=https://github.com/RyanShen30/ops-lab1-2
+$ docker run --rm -d -p 127.0.0.1:18081:8080 ghcr.io/ryanshen30/ops-lab1-2@sha256:9898a0e1aabd30feaa871573a61b4272f89c8291ea5c829fe93fabf465c8e6d1
+b9c033a37732
+$ curl -s 127.0.0.1:18081/version
+{"version":"1.0.1","commit":"20da6eed62da2492360d72559b1fae6040cde7c8","build_no":"3","run_id":"39713717369","go":"go1.26.9"}
+```
+
+运行容器的主机架构为 `x86_64`，镜像为 `linux/amd64`，二者一致，不需要 `--platform`。
+
+**镜像中没有重新编译。** 用 `docker create` 加 `docker cp` 从镜像中取出 `/enroll-conflict`，它的 SHA-256 为 `99650f311d8fd045d33410c8cfd83ccd24a98e19018abffff474fde268637066`。这与 `v1.0.1` Release 附件中的二进制文件、release job 打包日志三者相同，镜像里运行的就是发布出去的那个文件。完成后已停止容器，并用 `docker rmi` 删除本地镜像。
+
+**思考。**
+
+- **为什么镜像 job 只能写在同一个工作流中：** release job 用 `GITHUB_TOKEN` 创建 Release。由 `GITHUB_TOKEN` 产生的事件（`workflow_dispatch` 和 `repository_dispatch` 除外）不会触发新的工作流运行，这是 GitHub 为防止工作流相互触发形成循环而设的限制。因此，另写一个监听 `release: published` 的工作流不会运行，镜像只能作为同一工作流中 `needs: release` 的后续 job。若改用个人访问令牌创建 Release 虽能触发，但要在仓库中保存长期有效的凭据。
+- **可见性：** 实测该包可匿名拉取。镜像由本仓库工作流用 `GITHUB_TOKEN` 推送，并通过 `org.opencontainers.image.source` 标签关联到仓库；在本仓库公开的条件下，包没有停留在默认的私有状态。
+- **按摘要运行而不按 tag 运行：** tag `1.0.1` 可以被重新推送、指向别的内容，摘要则由镜像内容决定。按摘要运行，保证运行的正是上面记录的这一份镜像。
 
 ### 选做 O2：缓存对反馈时间的影响
 
@@ -401,6 +497,7 @@ go=go1.26.9
 
 | GitHub 用户名 | 发起并合入的 PR 编号 | 审批过的 PR 编号 |
 |---|---|---|
-| RyanShen30 | [#2](https://github.com/RyanShen30/ops-lab1-2/pull/2) | [#3](https://github.com/RyanShen30/ops-lab1-2/pull/3#pullrequestreview-5561903762) |
-| Liuxiang400 | [#3](https://github.com/RyanShen30/ops-lab1-2/pull/3) | [#2](https://github.com/RyanShen30/ops-lab1-2/pull/2#pullrequestreview-5561740627)、[#5](https://github.com/RyanShen30/ops-lab1-2/pull/5#pullrequestreview-5567500720) |
-| ashkirakira | [#5](https://github.com/RyanShen30/ops-lab1-2/pull/5) | — |
+| RyanShen30 | [#2](https://github.com/RyanShen30/ops-lab1-2/pull/2) | [#3](https://github.com/RyanShen30/ops-lab1-2/pull/3#pullrequestreview-5561903762)、[#4](https://github.com/RyanShen30/ops-lab1-2/pull/4#pullrequestreview-5561917120)、[#6](https://github.com/RyanShen30/ops-lab1-2/pull/6#pullrequestreview-5572324223)、[#7](https://github.com/RyanShen30/ops-lab1-2/pull/7#pullrequestreview-5608701517)、[#8](https://github.com/RyanShen30/ops-lab1-2/pull/8#pullrequestreview-5608705542) |
+| Liuxiang400 | [#3](https://github.com/RyanShen30/ops-lab1-2/pull/3)、[#4](https://github.com/RyanShen30/ops-lab1-2/pull/4) | [#2](https://github.com/RyanShen30/ops-lab1-2/pull/2#pullrequestreview-5561740627)、[#5](https://github.com/RyanShen30/ops-lab1-2/pull/5#pullrequestreview-5567500720) |
+| ashkirakira | [#5](https://github.com/RyanShen30/ops-lab1-2/pull/5)、[#6](https://github.com/RyanShen30/ops-lab1-2/pull/6) | — |
+| Shundi-Wu | [#7](https://github.com/RyanShen30/ops-lab1-2/pull/7)、[#8](https://github.com/RyanShen30/ops-lab1-2/pull/8) | [#5](https://github.com/RyanShen30/ops-lab1-2/pull/5#pullrequestreview-5567512409) |
